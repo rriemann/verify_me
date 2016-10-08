@@ -64,7 +64,8 @@ module.exports = function(config) {
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: ['Chrome'],
+    browsers: ['PhantomJS', 'Chrome'],
+
 
     // The number of disconnections tolerated.
     browserDisconnectTolerance: 0,
@@ -74,9 +75,14 @@ module.exports = function(config) {
     browserNoActivityTimeout: 300000,
 
 
+    // Close PhantomJS if karma crashes.
+    phantomjsLauncher: {
+      exitOnRessourceError: true
+    },
+
     // Continuous Integration mode
     // if true, Karma captures browsers, runs the tests and exits
-    singleRun: false,
+    singleRun: true,
 
 
     // add additional browserify configuration properties here
@@ -107,4 +113,8 @@ module.exports = function(config) {
       captureConsole: true
     }
   })
+
+  if (process.env.GITLAB_CI) {
+    config.browsers = ['PhantomJS'];
+  }
 }
