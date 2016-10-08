@@ -10,12 +10,6 @@ services:
 
 # This folder is cached between builds
 # http://docs.gitlab.com/ce/ci/yaml/README.html#cache
-cache:
-  paths:
-  - client/node_modules/
-  - utility/node_modules/
-  - server/node_modules/
-
 stages:
  - build
  - test
@@ -26,30 +20,49 @@ build:utility:
   script:
     - cd utility/
     - make setup-dev build
+  artifacts:
+    expire_in: '5 mins'
+    untracked: true
+    paths:
+      - utility/node_modules/
 
 build:client:
   stage: build
   script:
     - cd client/
     - make setup-dev build
+  artifacts:
+    expire_in: '5 mins'
+    untracked: true
+    paths:
+      - client/node_modules/
 
 build:server:
   stage: build
   script:
     - cd server/
     - make setup-dev build
+  artifacts:
+    expire_in: '5 mins'
+    untracked: true
+    paths:
+      - server/node_modules/
 
 test:utility:
   stage: test
   script:
    - cd utility/
    - make test
+  dependencies:
+    - build:utility 
 
 test:client:
   stage: test
   script:
    - cd client/
    - make test
+  dependencies:
+    - build:client
 
 cleanup:utility:
   stage: cleanup
