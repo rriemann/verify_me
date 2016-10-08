@@ -19,33 +19,55 @@ cache:
 stages:
  - build
  - test
+ - cleanup
 
-build_utility:
+build:utility:
   stage: build
   script:
     - cd utility/
     - make setup-dev build
 
-build_client:
+build:client:
   stage: build
   script:
     - cd client/
     - make setup-dev build
 
-build_server:
+build:server:
   stage: build
   script:
     - cd server/
     - make setup-dev build
 
-test_utility:
+test:utility:
   stage: test
   script:
    - cd utility/
    - make setup-dev build test
 
-test_client:
+test:client:
   stage: test
   script:
    - cd client/
    - make setup-dev build test
+
+cleanup:utility:
+  stage: cleanup
+  script:
+    - cd utility/
+    - make clean
+  when: always
+
+cleanup:client:
+  stage: cleanup
+  script:
+    - cd client/
+    - make clean
+  when: always
+
+cleanup:server:
+  stage: cleanup
+  script:
+    - cd server/
+    - make clean
+  when: always
