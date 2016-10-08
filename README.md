@@ -1,3 +1,6 @@
+[![build status](https://gitlab.com/0ndo/verify_me/badges/master/build.svg)](https://gitlab.com/0ndo/verify_me/commits/master)
+[![coverage report](https://gitlab.com/0ndo/verify_me/badges/master/coverage.svg)](https://gitlab.com/0ndo/verify_me/commits/master)
+
 !!! PLEASE DO NOT USE THIS FOR ANY KIND OF PRODUCTION ENVIRONMENT !!!
 
 # verifyme
