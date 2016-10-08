@@ -17,12 +17,35 @@ cache:
   - server/node_modules/
 
 stages:
+ - build
  - test
 
-test_async:
+build_utility:
+  stage: build
+  script:
+    - cd utility/
+    - make setup-dev build
+
+build_client:
+  stage: build
+  script:
+    - cd client/
+    - make setup-dev build
+
+build_server:
+  stage: build
+  script:
+    - cd server/
+    - make setup-dev build
+
+test_utility:
+  stage: test
+  script:
+   - cd utility/
+   - make setup-dev build test
+
+test_client:
   stage: test
   script:
    - cd client/
-   - make setup-dev build test
-   - cd ../utility/
    - make setup-dev build test
