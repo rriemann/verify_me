@@ -43,13 +43,13 @@ test:utility:
   stage: test
   script:
    - cd utility/
-   - make setup-dev build test
+   - make test
 
 test:client:
   stage: test
   script:
    - cd client/
-   - make setup-dev build test
+   - make test
 
 cleanup:utility:
   stage: cleanup
