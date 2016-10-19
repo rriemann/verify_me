@@ -1,0 +1,32 @@
+{
+    "compileOnSave": true,
+    "compilerOptions": {
+        "allowJs": true,
+        "inlineSourceMap": true,
+        "lib": [
+            "dom",
+            "es5",
+            "es2015",
+            "es2016"
+        ],
+        "module": "commonjs",
+        "noEmitOnError": true,
+        "noImplicitAny": true,
+        "outDir": "dist/",
+        "preserveConstEnums": true,
+        "pretty": true,
+        "removeComments": true,
+        "strictNullChecks": true
+   },
+
+   "include": [
+       "src/**/*",
+       "test/**/*",
+       "lib/*"
+   ],
+
+    "exclude": [
+        "dist",
+        "node_modules"
+    ]
+}

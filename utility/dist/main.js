@@ -1,43 +1,11 @@
 "use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _check = require("./check");
-
-Object.defineProperty(exports, "check", {
-  enumerable: true,
-  get: function get() {
-    return _interopRequireDefault(_check).default;
-  }
-});
-Object.defineProperty(exports, "assert", {
-  enumerable: true,
-  get: function get() {
-    return _check.assert;
-  }
-});
-
-var _util = require("./util");
-
-Object.defineProperty(exports, "util", {
-  enumerable: true,
-  get: function get() {
-    return _interopRequireDefault(_util).default;
-  }
-});
-
-var _types = require("./types");
-
-Object.keys(_types).forEach(function (key) {
-  if (key === "default") return;
-  Object.defineProperty(exports, key, {
-    enumerable: true,
-    get: function get() {
-      return _types[key];
-    }
-  });
-});
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+}
+var check_1 = require("./check");
+exports.check = check_1.default;
+exports.assert = check_1.assert;
+var util_1 = require("./util");
+exports.util = util_1.default;
+__export(require("./types"));
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoibWFpbi5qcyIsInNvdXJjZVJvb3QiOiIiLCJzb3VyY2VzIjpbIi4uL3NyYy9tYWluLnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBLFlBQVksQ0FBQzs7OztBQUViLGlDQUFrRDtBQUF6Qyx3QkFBQSxPQUFPLENBQVM7QUFBRSx5QkFBQSxNQUFNLENBQUE7QUFDakMsK0JBQXdDO0FBQS9CLHNCQUFBLE9BQU8sQ0FBUTtBQUV4Qiw2QkFBdUIifQ==

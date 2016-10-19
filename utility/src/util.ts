@@ -2,7 +2,7 @@
 
 import * as kbpgp from "kbpgp"
 
-import check, { assert } from "./check"
+import check, { assert } from "./check";
 import { BigInteger, Curve, KeyManager } from "./types"
 
 /**
@@ -13,18 +13,19 @@ import { BigInteger, Curve, KeyManager } from "./types"
  * @returns {Promise}
  *    The promise of a {KeyManager} object.
  */
-function generateKeyFromString(key_as_string)
+function generateKeyFromString(key_as_string : string)
 {
   return new Promise((resolve, reject) => {
 
     assert(check.isString(key_as_string), "Input parameter is not of type string.");
 
-    KeyManager.import_from_armored_pgp({ armored: key_as_string }, (err, key_manager) => {
-      if (err) { reject(err); }
-      else {
-        resolve(key_manager);
-      }
-    });
+    KeyManager.prototype.import_from_armored_pgp({ armored: key_as_string },
+      (err : string, key_manager : KeyManager) => {
+        if (err) { reject(err); }
+        else {
+          resolve(<KeyManager>key_manager);
+        }
+      });
   });
 }
 
@@ -39,7 +40,7 @@ function generateKeyFromString(key_as_string)
  * @returns {Promise}
  *    The promise of a {BigInteger} scalar [1, n-1]
  */
-async function generateRandomScalar(curve)
+async function generateRandomScalar(curve : Curve)
 {
   assert(check.isCurve(curve));
 
@@ -64,7 +65,7 @@ async function generateRandomScalar(curve)
  * @returns {BigInteger}
  *    the requested blinding factor.
  */
-async function generateRsaBlindingFactor(bitLength)
+async function generateRsaBlindingFactor(bitLength: number)
 {
   assert(check.isInteger(bitLength),
     "The blinding factor bit length is no integer but a '" + bitLength + "'");
@@ -72,7 +73,7 @@ async function generateRsaBlindingFactor(bitLength)
     "The blinding factor bit length must be a multiple of 8 bits and >= 256 and <= 16384");
 
   const sub_prime_length = Math.floor(bitLength / 2);
-  let primes = await generateTwoPrimeNumbers(sub_prime_length);
+  const primes: Array<BigInteger> = await generateTwoPrimeNumbers(sub_prime_length);
 
   return primes[0].multiply(primes[1]);
 }
@@ -86,9 +87,9 @@ async function generateRsaBlindingFactor(bitLength)
  * @returns {Promise}
  *    The promise of two prime numbers with the requesterd bit length.
  */
-function generateTwoPrimeNumbers(primeBitLength)
+function generateTwoPrimeNumbers(primeBitLength: number): Promise<Array<BigInteger>>
 {
-  return new Promise((resolve, reject) => {
+  return new Promise<Array<BigInteger>>((resolve, reject) => {
 
     assert(check.isInteger(primeBitLength),
       "The prime bit length is no integer but a '" + primeBitLength + "'");
@@ -118,7 +119,7 @@ function generateTwoPrimeNumbers(primeBitLength)
  * @returns {BigInteger}
  *    Hash digest as {string} or {null} if input message is no string object.
  */
-function calculateSha512(message)
+function calculateSha512(message: BigInteger): BigInteger
 {
   assert(check.isBigInteger(message));
 

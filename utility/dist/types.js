@@ -1,30 +1,13 @@
 "use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.Point = exports.Tags = exports.KeyManager = exports.Curve = exports.Buffer = exports.BigInteger = undefined;
-
-var _keybaseEcurve = require("keybase-ecurve");
-
-Object.defineProperty(exports, "Point", {
-  enumerable: true,
-  get: function get() {
-    return _keybaseEcurve.Point;
-  }
-});
-
-var _kbpgp = require("kbpgp");
-
-var kbpgp = _interopRequireWildcard(_kbpgp);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-var BigInteger = exports.BigInteger = kbpgp.bn.BigInteger;
-var Buffer = exports.Buffer = kbpgp.Buffer;
-var Curve = exports.Curve = kbpgp.ecc.curves.Curve;
-var KeyManager = exports.KeyManager = kbpgp.KeyManager;
-var Tags = exports.Tags = {
-  public_key_algorithms: kbpgp.const.openpgp.public_key_algorithms,
-  verification_algorithms: kbpgp.const.openpgp.verification_algorithms
+var kbpgp = require("kbpgp");
+exports.BigInteger = kbpgp.bn.BigInteger;
+exports.Curve = kbpgp.ecc.curves.Curve;
+exports.Buffer = kbpgp.Buffer;
+exports.KeyManager = kbpgp.KeyManager;
+exports.Tags = {
+    public_key_algorithms: kbpgp.const.openpgp.public_key_algorithms,
+    verification_algorithms: kbpgp.const.openpgp.verification_algorithms
 };
+var keybase_ecurve_1 = require("keybase-ecurve");
+exports.Point = keybase_ecurve_1.Point;
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoidHlwZXMuanMiLCJzb3VyY2VSb290IjoiIiwic291cmNlcyI6WyIuLi9zcmMvdHlwZXMudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUEsWUFBWSxDQUFDO0FBRWIsNkJBQStCO0FBRWpCLFFBQUEsVUFBVSxHQUFHLEtBQUssQ0FBQyxFQUFFLENBQUMsVUFBVSxDQUFDO0FBQ2pDLFFBQUEsS0FBSyxHQUFHLEtBQUssQ0FBQyxHQUFHLENBQUMsTUFBTSxDQUFDLEtBQUssQ0FBQztBQUMvQixRQUFBLE1BQU0sR0FBRyxLQUFLLENBQUMsTUFBTSxDQUFDO0FBQ3RCLFFBQUEsVUFBVSxHQUFHLEtBQUssQ0FBQyxVQUFVLENBQUM7QUFFL0IsUUFBQSxJQUFJLEdBQUc7SUFDbEIscUJBQXFCLEVBQVEsS0FBTSxDQUFDLEtBQUssQ0FBQyxPQUFPLENBQUMscUJBQXFCO0lBQ3ZFLHVCQUF1QixFQUFRLEtBQU0sQ0FBQyxLQUFLLENBQUMsT0FBTyxDQUFDLHVCQUF1QjtDQUM1RSxDQUFDO0FBRUYsaURBQXVDO0FBQTlCLGlDQUFBLEtBQUssQ0FBQSJ9

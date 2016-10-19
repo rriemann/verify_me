@@ -1,6 +1,6 @@
 "use strict";
 
-import { BigInteger, Buffer, Curve, KeyManager, Point, Tags } from "./types"
+import { BigInteger, Buffer, Curve, KeyManager, Point, Tags } from './types';
 
 /**
  * Client runtime assert.
@@ -11,7 +11,7 @@ import { BigInteger, Buffer, Curve, KeyManager, Point, Tags } from "./types"
  * @param {string|null} message
  *    Custom assert message.
  */
-function assert(condition, message)
+function assert(condition : Object, message? : string)
 {
   if (!condition) {
     throw new Error(message || "Assertion failed");
@@ -27,7 +27,7 @@ function assert(condition, message)
  *    {true} if the given element is a {BigInteger}
  *    else {false}
  */
-function isBigInteger(object)
+function isBigInteger(object : Object)
 {
   return isObject(object) && (object instanceof BigInteger);
 }
@@ -41,7 +41,7 @@ function isBigInteger(object)
  *    {true} if the given element is a {Buffer}
  *    else {false}
  */
-function isBuffer(object)
+function isBuffer(object : Object)
 {
   return isObject(object) && (object instanceof Buffer);
 }
@@ -55,7 +55,7 @@ function isBuffer(object)
  *    {true} if the given element is a {Curve}
  *    else {false}
  */
-function isCurve(object)
+function isCurve(object : Object)
 {
   return isObject(object) && (object instanceof Curve);
 }
@@ -69,7 +69,7 @@ function isCurve(object)
  *    {true} if the given element is a {function}
  *    else {false}
  */
-function isFunction(object)
+function isFunction(object : Object)
 {
   return (typeof object === "function");
 }
@@ -83,7 +83,7 @@ function isFunction(object)
  *    {true} if the given element is an integer
  *    else {false}
  */
-function isInteger(object)
+function isInteger(object : Object)
 {
   return (typeof object === "number") && (object % 1 === 0);
 }
@@ -97,7 +97,7 @@ function isInteger(object)
  *    {true} if the given element is an {object}
  *    else {false}
  */
-function isObject(object)
+function isObject(object : Object)
 {
   return object === Object(object);
 }
@@ -111,7 +111,7 @@ function isObject(object)
  *    {true} if the given object is a {KeyManager}
  *    else {false}.
  */
-function isKeyManager(key_manager)
+function isKeyManager(key_manager : Object)
 {
   return (key_manager instanceof KeyManager)
       && (key_manager.get_primary_keypair() !== null);
@@ -127,12 +127,13 @@ function isKeyManager(key_manager)
  *    {true} if the given object is a {KeyManager} that can be
  *    used to sign based on the ECDSA algorithm else {false}.
  */
-function isKeyManagerForEcdsaSign(key_manager)
+function isKeyManagerForEcdsaSign(key_manager : Object)
 {
   if (!isKeyManager(key_manager)) { return false; }
 
+  const tmp : KeyManager = new KeyManager();
   const tags = Tags.public_key_algorithms;
-  const key_algorithm = key_manager.get_primary_keypair().get_type();
+  const key_algorithm = (<KeyManager>key_manager).get_primary_keypair().get_type();
 
   return (key_algorithm === tags.ECDSA);
 }
@@ -147,11 +148,11 @@ function isKeyManagerForEcdsaSign(key_manager)
  *    {true} if the given object is a {KeyManager} that can be used
  *    to sign based on the RSA algorithm else {false}.
  */
-function isKeyManagerForRsaSign(key_manager)
+function isKeyManagerForRsaSign(key_manager : Object)
 {
   if (!isKeyManager(key_manager)) { return false; }
 
-  const key_algorithm = key_manager.get_primary_keypair().get_type();
+  const key_algorithm = (<KeyManager>key_manager).get_primary_keypair().get_type();
   const tags = Tags.public_key_algorithms;
 
   return (key_algorithm === tags.RSA) || (key_algorithm === tags.RSA_SIGN_ONLY);
@@ -166,12 +167,12 @@ function isKeyManagerForRsaSign(key_manager)
  *    {true} if the given element is a {Point}
  *    else {false}
  */
-function isPoint(object)
+function isPoint(object : Object)
 {
   return isObject(object) && (object instanceof Point);
 }
 
-/**
+/** 
  * Checks if the given element is a {string}.
  *
  * @param {*} object
@@ -180,7 +181,7 @@ function isPoint(object)
  *    {true} if the given element is a {Point}
  *    else {false}
  */
-function isString(object)
+function isString(object : Object)
 {
   return (typeof object === "string");
 }

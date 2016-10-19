@@ -1,14 +1,15 @@
 "use strict";
 
-import * as kbpgp from "kbpgp"
+import * as kbpgp from "kbpgp";
 
-export const BigInteger = kbpgp.bn.BigInteger;
-export const Buffer = kbpgp.Buffer;
-export const Curve = kbpgp.ecc.curves.Curve;
-export const KeyManager = kbpgp.KeyManager;
+export import BigInteger = kbpgp.bn.BigInteger;
+export import Curve = kbpgp.ecc.curves.Curve;
+export import Buffer = kbpgp.Buffer;
+export import KeyManager = kbpgp.KeyManager;
+
 export const Tags = {
-  public_key_algorithms: kbpgp.const.openpgp.public_key_algorithms,
-  verification_algorithms: kbpgp.const.openpgp.verification_algorithms
+  public_key_algorithms: (<any>kbpgp).const.openpgp.public_key_algorithms,
+  verification_algorithms: (<any>kbpgp).const.openpgp.verification_algorithms
 };
 
-export { Point } from "keybase-ecurve"
+export { Point } from "keybase-ecurve";
