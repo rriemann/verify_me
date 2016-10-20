@@ -1,0 +1,22 @@
+{
+    "compilerOptions": {
+        "baseUrl": "../",
+        "forceConsistentCasingInFileNames": true,
+        "module": "commonjs",
+        "noEmit": true,
+        "noImplicitAny": true,
+        "strictNullChecks": false,
+        "target": "es6",
+        "types": [
+            "keybase-ecurve"
+        ],
+        "typeRoots": [
+            "../"
+        ]
+    },
+
+    "files": [
+        "index.d.ts",
+        "kbpgp-tests.ts"
+    ]
+}

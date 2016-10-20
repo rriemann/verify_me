@@ -1,0 +1,20 @@
+{
+    "compilerOptions": {
+        "baseUrl": "../",
+        "forceConsistentCasingInFileNames": true,
+        "module": "commonjs",
+        "noEmit": true,
+        "noImplicitAny": true,
+        "strictNullChecks": false,
+        "target": "es6",
+        "types": [],
+        "typeRoots": [
+            "../"
+        ]
+    },
+
+    "files": [
+        "index.d.ts",
+        "keybase-ecurve-tests.ts"
+    ]
+}

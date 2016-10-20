@@ -1,15 +1,20 @@
 {
-  "author": "Bruno Kirschner <bruno.kirschner@online.de>",
-  "license": "MIT",
   "name": "verifyme_utility",
-  "homepage": "https://github.com/0ndorio/verify_me",
-  "private": true,
   "version": "0.1.0",
+  "private": true,
+  
+  "author": "Bruno Kirschner <bruno.kirschner@online.de>",
+  "license": "MIT", 
+  
   "main": "dist/src/main.js",
+   
   "dependencies": {
+    "@types/kbpgp": "file:../@types/kbpgp",
+    "@types/keybase-ecurve": "file:../@types/keybase-ecurve",
     "kbpgp": "git://github.com/0ndorio/kbpgp#blinding_subpacket",
     "keybase-ecurve": "1.0.0"
   },
+  
   "devDependencies": {
     "@types/chai": "latest",
     "@types/mocha": "latest",
@@ -17,10 +22,12 @@
     "istanbul": "latest",
     "mocha": "latest"
   },
+  
   "repository": {
     "type": "git",
     "url": "https://github.com/0ndorio/verify_me.git"
   },
+  
   "bugs": {
     "url": "https://github.com/0ndorio/verify_me/issues"
   }

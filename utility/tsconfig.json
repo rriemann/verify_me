@@ -1,7 +1,7 @@
 {
     "compileOnSave": true,
     "compilerOptions": {
-        "allowJs": true,
+        //"allowJs": true,
         "inlineSourceMap": true,
         "lib": [
             "dom",
@@ -21,8 +21,7 @@
 
    "include": [
        "src/**/*",
-       "test/**/*",
-       "lib/*"
+       "test/**/*"
    ],
 
     "exclude": [

@@ -1,5 +1,12 @@
-declare module "kbpgp" {
-    
+// Type definitions for kbpgp 2.0.58
+// Project: https://github.com/keybase/kbpgp
+// Definitions by: Bruno Kirschner <https://gitlab.com/0ndo>
+// Definitions: https://gitlab.com/0ndo/verify_me.git
+
+/// <refeence types="keybase-ecurve" />
+import ecurve = require("keybase-ecurve");
+
+declare namespace kbpgp {
     namespace asym  {
 
         namespace RSA {
@@ -42,10 +49,7 @@ declare module "kbpgp" {
             toString(base: number): string;
         }
     }
-
     
-    import { Point } from "keybase-ecurve"
-
     namespace ecc.curves {
 
         function brainpool_p512(): Curve;
@@ -53,7 +57,7 @@ declare module "kbpgp" {
         class Curve {
 
             n: bn.BigInteger;
-            G: Point;
+            G: ecurve.Point;
 
             random_scalar(fn:(scalar: bn.BigInteger) => void): any;
         }
@@ -88,3 +92,5 @@ declare module "kbpgp" {
         static import_from_armored_pgp(args: any, fn:(error: string, keyManager: KeyManager) => void): KeyManager;
     }
 }
+
+export = kbpgp;
