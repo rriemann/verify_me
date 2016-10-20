@@ -1,19 +1,21 @@
-BABEL=node_modules/.bin/babel
-BABEL_NODE=node_modules/.bin/babel-node
-BABEL_INSTANBUL=node_modules/.bin/babel-istanbul
-MOCHA=node_modules/.bin/_mocha
+INSTANBUL=node_modules/.bin/istanbul
+MOCHA=node_modules/.bin/mocha
+_MOCHA=node_modules/.bin/_mocha
 
 default: build
 all: clean build test
 
-build: src/check.js
-	$(BABEL) -d dist/ src/
+build: src/main.ts
+	@tsc
 
-watch: src/check.js
-	$(BABEL) -w -d dist/ src/
+watch: src/main.ts
+	@tsc -w
 
 test:
-	$(BABEL_NODE) $(BABEL_INSTANBUL) cover $(MOCHA) -- test/*
+	$(INSTANBUL) cover $(_MOCHA) -- dist/test/*
+
+test-debug:
+	$(MOCHA) --debug-brk -- dist/test/* --check-leaks --full-trace
 
 clean:
 	@rm -rf dist/* coverage/*

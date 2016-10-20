@@ -1,12 +1,12 @@
 "use strict";
 
-import { assert } from "chai"
+import { assert } from "chai";
 
 import { BigInteger, Buffer } from "../src/types"
 import check from "../src/check"
 import util from "../src/util"
 
-import { public_keys} from "./helper/keys"
+import { public_keys } from "./helper/keys"
 
 describe("check", function() {
 
@@ -15,11 +15,6 @@ describe("check", function() {
   ///---------------------------------
 
   describe("#generateKeyFromString", () => {
-
-    it("should throw if input is not a string", () => {
-      return util.generateKeyFromString(123)
-        .catch(error => assert.instanceOf(error, Error));
-    });
 
     it("should throw if input string is not an ascii armored key", () => {
       return util.generateKeyFromString("a broken key")
@@ -43,12 +38,6 @@ describe("check", function() {
 
   describe("#generateTwoPrimeNumbers", () => {
 
-    it("should return a rejected Promise if input parameter is no integer", () => {
-      return util.generateTwoPrimeNumbers(null)
-        .then(() => assert.fail())
-        .catch((error) => assert.include(error.message, "no integer"));
-    });
-
     it("should return a rejected Promise if input bit size is not multiple of 8", () => {
       return util.generateTwoPrimeNumbers(15)
         .then((answer) => assert.fail())
@@ -70,7 +59,7 @@ describe("check", function() {
     it("should return two {BigInteger} prime numbers of given bit length", (done) => {
       const bitLength = 256;
 
-      return util.generateTwoPrimeNumbers(bitLength)
+      util.generateTwoPrimeNumbers(bitLength)
         .then((primeNumbers) => {
 
           assert.equal(2, primeNumbers.length);
@@ -90,12 +79,6 @@ describe("check", function() {
   ///---------------------------------
 
   describe("#generateRsaBlindingFactor", () => {
-
-    it("should return a rejected Promise if input parameter is no integer", () => {
-      return util.generateRsaBlindingFactor(null)
-        .then(() => assert.fail())
-        .catch((error) => assert.include(error.message, "no integer"));
-    });
 
     it("should return a rejected Promise if input bit size is not multiple of 8", () => {
       return util.generateRsaBlindingFactor(15)
@@ -118,7 +101,7 @@ describe("check", function() {
     it("should return a {BigInteger} numbers of given bit length", (done) => {
       const bitLength = 256;
 
-      return util.generateRsaBlindingFactor(bitLength)
+      util.generateRsaBlindingFactor(bitLength)
         .then((blinding_factor) => {
 
           assert.isTrue(check.isBigInteger(blinding_factor));
@@ -134,10 +117,6 @@ describe("check", function() {
   ///---------------------------------
 
   describe("#calculateSha512()", () => {
-
-    it("should throw if input parameter is no BigInteger", () => {
-      assert.throws(() => util.calculateSha512(123));
-    });
 
     it("should return a hash digest with bit length 512", () => {
       const expected_hex = "ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee64b55d39a"

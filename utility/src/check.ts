@@ -27,7 +27,7 @@ function assert(condition : Object, message? : string)
  *    {true} if the given element is a {BigInteger}
  *    else {false}
  */
-function isBigInteger(object : Object)
+function isBigInteger(object : any)
 {
   return isObject(object) && (object instanceof BigInteger);
 }
@@ -131,7 +131,6 @@ function isKeyManagerForEcdsaSign(key_manager : Object)
 {
   if (!isKeyManager(key_manager)) { return false; }
 
-  const tmp : KeyManager = new KeyManager();
   const tags = Tags.public_key_algorithms;
   const key_algorithm = (<KeyManager>key_manager).get_primary_keypair().get_type();
 

@@ -8,16 +8,16 @@ declare module "kbpgp" {
 
             class Pair {
 
-                pub: Pub
-                priv: Priv
+                pub: Pub;
+                priv: Priv;
 
                 get_type(): string;
             }
 
             class Priv {
 
-                p: bn.BigInteger
-                q: bn.BigInteger
+                p: bn.BigInteger;
+                q: bn.BigInteger;
             }
 
             class Pub {}
@@ -28,23 +28,32 @@ declare module "kbpgp" {
 
         class BigInteger {
 
-            static ZERO: BigInteger
-            static ONE: BigInteger
-            static TWO: BigInteger
+            static ZERO: BigInteger;
+            static ONE: BigInteger;
+            static TWO: BigInteger;
 
             static fromBuffer(buffer: Buffer): BigInteger;
 
+            bitLength(): number;
             compareTo(other: BigInteger): number;
+            isProbablePrime(): boolean;
             multiply(other: BigInteger): BigInteger;
             toBuffer(): Buffer;
+            toString(base: number): string;
         }
     }
 
+    
+    import { Point } from "keybase-ecurve"
+
     namespace ecc.curves {
+
+        function brainpool_p512(): Curve;
         
         class Curve {
 
-            n: bn.BigInteger
+            n: bn.BigInteger;
+            G: Point;
 
             random_scalar(fn:(scalar: bn.BigInteger) => void): any;
         }
@@ -52,7 +61,7 @@ declare module "kbpgp" {
 
     namespace hash {
         
-        function SHA512(buffer: Buffer): Buffer
+        function SHA512(buffer: Buffer): Buffer;
     }
 
     // As it seems it is not possible to define a namespace/variable named "const".
@@ -65,11 +74,17 @@ declare module "kbpgp" {
     //
     // const "const": Map<String, String>
     
-    class Buffer {}
+    class Buffer {
+
+        constructor(content: string);
+        constructor(content: number);
+    }
 
     class KeyManager {
+
+        constructor(_args:Object);
         
-        get_primary_keypair(): asym.RSA.Pair
-        import_from_armored_pgp(args: Object, fn:(error: string, keyManager: KeyManager) => void): KeyManager
+        get_primary_keypair(): asym.RSA.Pair;
+        static import_from_armored_pgp(args: any, fn:(error: string, keyManager: KeyManager) => void): KeyManager;
     }
 }

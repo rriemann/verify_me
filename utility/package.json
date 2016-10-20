@@ -5,7 +5,7 @@
   "homepage": "https://github.com/0ndorio/verify_me",
   "private": true,
   "version": "0.1.0",
-  "main": "dist/main.js",
+  "main": "dist/src/main.js",
   "dependencies": {
     "kbpgp": "git://github.com/0ndorio/kbpgp#blinding_subpacket",
     "keybase-ecurve": "1.0.0"

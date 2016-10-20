@@ -13,13 +13,13 @@ import { BigInteger, Curve, KeyManager } from "./types"
  * @returns {Promise}
  *    The promise of a {KeyManager} object.
  */
-function generateKeyFromString(key_as_string : string)
+function generateKeyFromString(key_as_string : string): Promise<KeyManager>
 {
   return new Promise((resolve, reject) => {
 
     assert(check.isString(key_as_string), "Input parameter is not of type string.");
 
-    KeyManager.prototype.import_from_armored_pgp({ armored: key_as_string },
+    KeyManager.import_from_armored_pgp({ armored: key_as_string },
       (err : string, key_manager : KeyManager) => {
         if (err) { reject(err); }
         else {
