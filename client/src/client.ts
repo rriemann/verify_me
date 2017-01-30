@@ -1,6 +1,4 @@
-"use strict";
-
-import { BigInteger, check, util } from "verifyme_utility"
+import { BigInteger, check, KeyManager, util } from "verifyme_utility";
 
 /// Constant element ids
 const server_public_key_element_id = "server_public_key";
@@ -10,12 +8,11 @@ const user_token_element_id = "token_textarea";
 /**
  *  Extract users public key from the related textarea
  *
- * @returns {Promise}
+ * @returns {Promise<KeyManager>}
  *    the promise of a the users public key managed
  *    in a kbpgp {KeyManager}
  */
-function getPublicKey()
-{
+function getPublicKey(): Promise<KeyManager> {
   const public_key_string = getPublicKeyString();
   if (public_key_string === null) {
     return Promise.reject(new Error("Couldn't read the public key input. Please reload page."));
@@ -31,10 +28,9 @@ function getPublicKey()
  *    string value of the dom element with id "public_key_textarea"
  *    or {null} if the element is missing.
  */
-function getPublicKeyString()
-{
+function getPublicKeyString(): string | null {
   const content = getTextAreaContent(user_public_key_element_id);
-  if (!check.isString(content)) {
+  if (content === null) {
     return null;
   }
 
@@ -42,19 +38,18 @@ function getPublicKeyString()
 }
 
 /**
- * Extract users token from textarea "token_textarea"
+ * Extract users token from textarea "token_textarea".
  *
  * @return {BigInteger}
  *    token extracted from input
  */
-function getToken()
-{
+function getToken(): BigInteger {
   const token_string = getTokenString();
   if (token_string === null) {
     throw new Error("Couldn't read the token input. Please reload page.");
   }
 
-  const token = new BigInteger(token_string, 16);
+  const token: BigInteger = new BigInteger(token_string, 16);
   if (!token.isProbablePrime()) {
     throw new Error("Unsecure Token. Please check your input.");
   }
@@ -69,10 +64,9 @@ function getToken()
  *    string value of the dom element with id "token_textarea"
  *    or {null} if the element is missing.
  */
-function getTokenString()
-{
+function getTokenString(): string | null {
   const content = getTextAreaContent(user_token_element_id);
-  if (!check.isString(content)) {
+  if (content === null) {
     return null;
   }
 
@@ -86,10 +80,9 @@ function getTokenString()
  *    the promise of a the servers public key managed
  *    in a kbpgp {KeyManager}
  */
-function getServerPublicKey()
-{
+function getServerPublicKey(): Promise<KeyManager> {
   const public_key_string = getServerPublicKeyString();
-  if (!check.isString(public_key_string)) {
+  if (public_key_string === null) {
     return Promise.reject(new Error("Couldn't read servers public key. Please reload page."));
   }
 
@@ -103,8 +96,7 @@ function getServerPublicKey()
  *    string value of the dom element with id "server_public_key"
  *    or {null} if the element is missing.
  */
-function getServerPublicKeyString()
-{
+function getServerPublicKeyString(): string | null {
   const element = document.getElementById(server_public_key_element_id);
   if (element === null) {
     return null;
@@ -122,14 +114,13 @@ function getServerPublicKeyString()
  *    {string} if text area id is valid,
  *    else {null}
  */
-function getTextAreaContent(text_area_name)
-{
+function getTextAreaContent(text_area_name: string): string | null {
   if (!check.isString(text_area_name)) { return null; }
 
   const textarea = document.getElementById(text_area_name);
 
   let content = null;
-  if (textarea !== null) {
+  if (textarea !== null && textarea instanceof HTMLTextAreaElement) {
     content = textarea.value;
   }
 
@@ -138,17 +129,11 @@ function getTextAreaContent(text_area_name)
 
 /**
  * Returns the requested algorithm implementation.
- *
  * @returns {string}
  */
-function getAlgorithmHints()
-{
+function getAlgorithmHints() {
   const path_elements = window.location.pathname.slice(1).split("/");
-
-  return {
-    algorithm: path_elements[0],
-    implementation: path_elements[1]
-  };
+  return path_elements[1];
 }
 
 const client_api = {
@@ -162,7 +147,7 @@ const client_api = {
   getTokenString,
   server_public_key_element_id,
   user_public_key_element_id,
-  user_token_element_id
+  user_token_element_id,
 };
 
-export default client_api
+export default client_api;

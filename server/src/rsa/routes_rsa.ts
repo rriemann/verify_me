@@ -1,36 +1,37 @@
-"use strict";
+import { Request, Response } from "express";
 
-import keys from "../keys"
-import sign from "./signing_rsa"
+import keys from "../keys";
+import sign from "./signing_rsa";
 
 /**
  * Render a RSA key into index html.
  *
- * @param {IncomingMessage} request
+ * @param {Request} request
  *    Received HTTP request to access the handled route & method combination.
- * @param {ServerResponse} response
+ * @param {Response} response
  *    HTTP server response
  */
-function renderIndex(request, response)
-{
-  response.render("index", {public_key: keys.rsa_key.armored_pgp_public})
+async function renderIndex(request: Request, response: Response): Promise<void> {
+  const key = await keys.rsa_promise;
+  response.render("index", {public_key: key.armored_pgp_public});
 };
 
 /**
  * Signs a given RSA blinded message.
  *
- * @param {IncomingMessage} request
+ * @param {Request} request
  *    Received HTTP request to access the handled route & method combination.
- * @param {ServerResponse} response
+ * @param {Response} response
  *    HTTP server response
  */
-function signBlindedMessage(request, response)
-{
-  let json = {};
+async function signBlindedMessage(request: Request, response: Response): Promise<void> {
+
+  const json: {signed_blinded_message?: string, error?: string } = {};
 
   if (request.hasOwnProperty("body") && request.body.hasOwnProperty("hashed_token")) {
 
-    json.signed_blinded_message = sign(request.body.message, keys.rsa_key);
+    const key = await keys.rsa_promise;
+    json.signed_blinded_message = sign(request.body.message, key);
 
   } else {
 
@@ -42,8 +43,7 @@ function signBlindedMessage(request, response)
 
 const routes_rsa_api = {
   renderIndex,
-  signBlindedMessage
+  signBlindedMessage,
 };
 
 export default routes_rsa_api;
-

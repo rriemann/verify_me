@@ -5,9 +5,10 @@
   
   "author": "Bruno Kirschner <bruno.kirschner@online.de>",
   "license": "MIT", 
-  
-  "main": "dist/src/main.js",
-   
+
+  "main": "dist/src/verifyme_utility.js",
+  "typings": "dist/src/verifyme_utility",
+
   "dependencies": {
     "@types/kbpgp": "file:../@types/kbpgp",
     "@types/keybase-ecurve": "file:../@types/keybase-ecurve",
@@ -20,7 +21,10 @@
     "@types/mocha": "latest",
     "chai": "latest",
     "istanbul": "latest",
-    "mocha": "latest"
+    "mocha": "latest",
+    "typescript": "next",
+    "tslib": "latest",
+    "tslint": "latest"
   },
   
   "repository": {

@@ -3,10 +3,17 @@
 // Definitions by: Bruno Kirschner <https://gitlab.com/0ndo>
 // Definitions: https://gitlab.com/0ndo/verify_me.git
 
-declare namespace ecurve {
-    class Point {}
-}
+/// <reference types="bn" />
+import { BigInteger } from "bn"
 
 declare module "keybase-ecurve" {
-    export = ecurve
+    
+    class Point {
+        
+        affineX: BigInteger;
+        affineY: BigInteger;
+        
+        add(other: Point): Point;
+        multiply(other: BigInteger): Point;
+    }
 }

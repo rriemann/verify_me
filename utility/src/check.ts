@@ -1,6 +1,6 @@
 "use strict";
 
-import { BigInteger, Buffer, Curve, KeyManager, Point, Tags } from './types';
+import { BigInteger, Buffer, Curve, KeyManager, Point, Tags } from "./types";
 
 /**
  * Client runtime assert.
@@ -11,8 +11,7 @@ import { BigInteger, Buffer, Curve, KeyManager, Point, Tags } from './types';
  * @param {string|null} message
  *    Custom assert message.
  */
-function assert(condition : Object, message? : string)
-{
+function assert(condition: boolean, message?: string) {
   if (!condition) {
     throw new Error(message || "Assertion failed");
   }
@@ -27,8 +26,7 @@ function assert(condition : Object, message? : string)
  *    {true} if the given element is a {BigInteger}
  *    else {false}
  */
-function isBigInteger(object : any)
-{
+function isBigInteger(object: any): boolean {
   return isObject(object) && (object instanceof BigInteger);
 }
 
@@ -41,8 +39,7 @@ function isBigInteger(object : any)
  *    {true} if the given element is a {Buffer}
  *    else {false}
  */
-function isBuffer(object : Object)
-{
+function isBuffer(object: any): boolean {
   return isObject(object) && (object instanceof Buffer);
 }
 
@@ -55,8 +52,7 @@ function isBuffer(object : Object)
  *    {true} if the given element is a {Curve}
  *    else {false}
  */
-function isCurve(object : Object)
-{
+function isCurve(object: any): boolean {
   return isObject(object) && (object instanceof Curve);
 }
 
@@ -69,8 +65,7 @@ function isCurve(object : Object)
  *    {true} if the given element is a {function}
  *    else {false}
  */
-function isFunction(object : Object)
-{
+function isFunction(object: any): boolean {
   return (typeof object === "function");
 }
 
@@ -83,8 +78,7 @@ function isFunction(object : Object)
  *    {true} if the given element is an integer
  *    else {false}
  */
-function isInteger(object : Object)
-{
+function isInteger(object: any): boolean {
   return (typeof object === "number") && (object % 1 === 0);
 }
 
@@ -97,8 +91,7 @@ function isInteger(object : Object)
  *    {true} if the given element is an {object}
  *    else {false}
  */
-function isObject(object : Object)
-{
+function isObject(object: any): boolean {
   return object === Object(object);
 }
 
@@ -111,8 +104,7 @@ function isObject(object : Object)
  *    {true} if the given object is a {KeyManager}
  *    else {false}.
  */
-function isKeyManager(key_manager : Object)
-{
+function isKeyManager(key_manager: any): boolean {
   return (key_manager instanceof KeyManager)
       && (key_manager.get_primary_keypair() !== null);
 }
@@ -127,12 +119,11 @@ function isKeyManager(key_manager : Object)
  *    {true} if the given object is a {KeyManager} that can be
  *    used to sign based on the ECDSA algorithm else {false}.
  */
-function isKeyManagerForEcdsaSign(key_manager : Object)
-{
+function isKeyManagerForEcdsaSign(key_manager: any): boolean {
   if (!isKeyManager(key_manager)) { return false; }
 
   const tags = Tags.public_key_algorithms;
-  const key_algorithm = (<KeyManager>key_manager).get_primary_keypair().get_type();
+  const key_algorithm = ( key_manager as KeyManager).get_primary_keypair().get_type();
 
   return (key_algorithm === tags.ECDSA);
 }
@@ -147,11 +138,10 @@ function isKeyManagerForEcdsaSign(key_manager : Object)
  *    {true} if the given object is a {KeyManager} that can be used
  *    to sign based on the RSA algorithm else {false}.
  */
-function isKeyManagerForRsaSign(key_manager : Object)
-{
+function isKeyManagerForRsaSign(key_manager: any): boolean {
   if (!isKeyManager(key_manager)) { return false; }
 
-  const key_algorithm = (<KeyManager>key_manager).get_primary_keypair().get_type();
+  const key_algorithm = ( key_manager as KeyManager).get_primary_keypair().get_type();
   const tags = Tags.public_key_algorithms;
 
   return (key_algorithm === tags.RSA) || (key_algorithm === tags.RSA_SIGN_ONLY);
@@ -166,12 +156,11 @@ function isKeyManagerForRsaSign(key_manager : Object)
  *    {true} if the given element is a {Point}
  *    else {false}
  */
-function isPoint(object : Object)
-{
+function isPoint(object: any): boolean {
   return isObject(object) && (object instanceof Point);
 }
 
-/** 
+/**
  * Checks if the given element is a {string}.
  *
  * @param {*} object
@@ -180,8 +169,7 @@ function isPoint(object : Object)
  *    {true} if the given element is a {Point}
  *    else {false}
  */
-function isString(object : Object)
-{
+function isString(object: any): boolean {
   return (typeof object === "string");
 }
 
@@ -197,7 +185,7 @@ const check_api = {
   isKeyManagerForRsaSign,
   isObject,
   isPoint,
-  isString
+  isString,
 };
 
 export default check_api;

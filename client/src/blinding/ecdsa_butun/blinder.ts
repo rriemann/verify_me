@@ -1,11 +1,14 @@
 "use strict";
 
-import { assert, BigInteger, Buffer, check, util } from "verifyme_utility"
+import {
+  assert, BigInteger, Buffer, check, Curve, KeyManager, Point, util,
+} from "verifyme_utility";
 
-import Blinder from "../blinder"
-import BlindSignaturePacket from "../../pgp/blind_signature_packet"
-import ButunEcdsaBlindingContext from "./blinding_context"
-import server from "../../server_requests"
+import BlindSignaturePacket from "../../pgp/blind_signature_packet";
+import Blinder from "../blinder";
+import ButunEcdsaBlindingContext from "./blinding_context";
+
+import server from "../../server_requests";
 
 /**
  * Representation of the ECDSA blinding algorithm presented by Ismail Butun and Mehmet Demirer
@@ -15,10 +18,13 @@ import server from "../../server_requests"
  *
  * The variable naming follows the algorithms notation.
  */
-export default class ButunEcdsaBlinder extends Blinder
-{
-  constructor()
-  {
+export default class ButunEcdsaBlinder extends Blinder<ButunEcdsaBlindingContext> {
+
+  public hashed_token: BigInteger;
+  public signer: Point;
+  public requester: Point;
+
+  constructor() {
     super();
   };
 
@@ -27,19 +33,23 @@ export default class ButunEcdsaBlinder extends Blinder
    *
    * @param {KeyManager} key_manager
    *    A {KeyManager} containing the signers public key which is necessary
-   *    to extract the elliptic curve public parameter.
+   *    to extract the elliptic curve public .
    * @param {BigInteger} token
    *    This is used to validate the blinded request.
    */
-  async initContext(key_manager, token)
-  {
+  public async initContext(key_manager: KeyManager, token: BigInteger): Promise<void> {
     assert(check.isKeyManagerForEcdsaSign(key_manager));
     assert(check.isBigInteger(token));
 
     const context = ButunEcdsaBlindingContext.fromKey(key_manager);
+    if (context.curve === null) {
+      throw new Error("context.curve must not be null");
+    }
+
+    const curve: Curve = context.curve;
     context.blinding_factor = {
-      a: await util.generateRandomScalar(context.curve),
-      b: await util.generateRandomScalar(context.curve)
+      a: await util.generateRandomScalar(curve),
+      b: await util.generateRandomScalar(curve),
     };
 
     context.hashed_token = util.calculateSha512(token);
@@ -47,6 +57,10 @@ export default class ButunEcdsaBlinder extends Blinder
     this.context = context;
     this.key_manager = key_manager;
     this.token = token;
+
+    const {signer, requester} =  await this.requestPublicPoints();
+    this.signer = signer;
+    this.requester = requester;
   }
 
   /**
@@ -63,22 +77,26 @@ export default class ButunEcdsaBlinder extends Blinder
    * @returns {BigInteger}
    *    The blinded message.
    */
-  blind(message, public_points)
-  {
+  public blind(message: BigInteger): BigInteger {
     assert(check.isBigInteger(message));
-    assert(check.isObject(public_points));
-    assert(public_points.hasOwnProperty("signer") && check.isPoint(public_points.signer));
-    assert(public_points.hasOwnProperty("requester") && check.isPoint(public_points.requester));
     assert(ButunEcdsaBlindingContext.isValidBlindingContext(this.context));
 
-    const n = this.context.curve.n;
-    const a = this.context.blinding_factor.a;
+    const context: ButunEcdsaBlindingContext = this.context as ButunEcdsaBlindingContext;
+    if (context.curve === null) {
+      throw new Error("Context must not be null.");
+    }
 
-    const R = public_points.requester;
+    const n = context.curve.n;
+    const a = context.blinding_factor.a;
+    if (a === null) {
+      throw new Error("Blinding factor a must not be null.");
+    }
+
+    const R = this.requester;
     const r = R.affineX.mod(n);
     const r_inv = r.modInverse(n);
 
-    const Ŕ = public_points.signer;
+    const Ŕ = this.signer;
     const ŕ = Ŕ.affineX.mod(n);
 
     return a.multiply(message).multiply(ŕ).multiply(r_inv).mod(n);
@@ -94,37 +112,37 @@ export default class ButunEcdsaBlinder extends Blinder
    *    The signed blinded message.
    * @param {BigInteger} original_message
    *    The message to be signed.
-   * @param {{signer: Point, requester: Point}} public_points
-   *    An {object} containing the requesters and
-   *    signers public blinding points.
    *
    * @returns {BigInteger}
    *    The unblinded signed message.
    */
-  unblind(signed_blinded_message, original_message, public_points)
-  {
+  public unblind(signed_blinded_message: BigInteger, original_message: BigInteger): BigInteger {
     assert(check.isBigInteger(signed_blinded_message));
     assert(check.isBigInteger(original_message));
-    assert(check.isObject(public_points));
-    assert(public_points.hasOwnProperty("signer") && check.isPoint(public_points.signer));
-    assert(public_points.hasOwnProperty("requester") && check.isPoint(public_points.requester));
     assert(ButunEcdsaBlindingContext.isValidBlindingContext(this.context));
 
-    const n = this.context.curve.n;
+    const context = this.context as ButunEcdsaBlindingContext;
+    if (context.curve === null) {
+      throw new Error("Context curve must not be null.");
+    }
 
+    const n = context.curve.n;
     assert(signed_blinded_message.compareTo(BigInteger.ZERO) > 0);
     assert(signed_blinded_message.compareTo(n) < 0);
 
-    const R = public_points.requester;
+    const R = this.requester;
     const r = R.affineX.mod(n);
 
-    const Ŕ = public_points.signer;
+    const Ŕ = this.signer;
     const ŕ = Ŕ.affineX.mod(n);
     const ŕ_inv = ŕ.modInverse(n);
 
-    const b = this.context.blinding_factor.b;
-    const bm = b.multiply(original_message);
+    const b = context.blinding_factor.b;
+    if (b === null) {
+      throw new Error("Blinding factor b must not be null.");
+    }
 
+    const bm = b.multiply(original_message);
     return signed_blinded_message.multiply(r).multiply(ŕ_inv).add(bm).mod(n);
   }
 
@@ -140,23 +158,30 @@ export default class ButunEcdsaBlinder extends Blinder
    * @param {BlindSignaturePacket} packet
    *    The prepared {BlindSignaturePacket} including the raw signature.
    */
-  async forgeSignature(packet)
-  {
+  public async forgeSignature(packet: BlindSignaturePacket): Promise<void> {
     assert(packet instanceof BlindSignaturePacket);
     assert(ButunEcdsaBlindingContext.isValidBlindingContext(this.context));
+
+    const context = this.context as ButunEcdsaBlindingContext;
+    if (context.curve === null) {
+      throw new Error("Curve must not be null.");
+    }
 
     const hash = util.calculateSha512(packet.raw_signature);
     const message = packet.key.pub.trunc_hash(hash.toBuffer());
 
-    const public_points = await this.requestPublicPoints();
-    const blinded_message = this.blind(message, public_points);
+    const blinded_message = this.blind(message);
 
-    const signed_blinded_message = await server.requestButunEcdsaBlinding(blinded_message, this.context);
-    const signed_message = this.unblind(signed_blinded_message, message, public_points);
+    const signed_blinded_message = await server.requestButunEcdsaBlinding(blinded_message, context);
+    if (signed_blinded_message instanceof Error) {
+      throw signed_blinded_message;
+    }
+
+    const signed_message = this.unblind(signed_blinded_message, message);
 
     const signature = Buffer.concat([
       signed_message.to_mpi_buffer(),
-      this.context.curve.point_to_mpi_buffer(public_points.requester)
+      context.curve.point_to_mpi_buffer(this.requester),
     ]);
 
     packet.sig = signature;
@@ -170,17 +195,28 @@ export default class ButunEcdsaBlinder extends Blinder
    * @returns {{signer: Point, requester: Point}}
    *    Signers and requester public curve point.
    */
-  async requestPublicPoints()
-  {
+  private async requestPublicPoints(): Promise<{signer: Point, requester: Point}> {
     assert(ButunEcdsaBlindingContext.isValidBlindingContext(this.context));
 
-    const curve = this.context.curve;
-    const n = this.context.curve.n;
-    const G = this.context.curve.G;
-    const a = this.context.blinding_factor.a;
-    const b = this.context.blinding_factor.b;
+    const context = this.context as ButunEcdsaBlindingContext;
+    if (context.curve === null) {
+      throw new Error("Context curve must not be null.");
+    }
 
-    const Ŕ = await server.requestButunEcdsaInitialization(this.context);
+    const curve = context.curve;
+    const n = curve.n;
+    const G = curve.G;
+    const a = context.blinding_factor.a;
+    const b = context.blinding_factor.b;
+    if (a === null || b === null) {
+      throw new Error("Blinding factor a and b must not be null.");
+    }
+
+    const Ŕ = await server.requestButunEcdsaInitialization(context);
+    if (Ŕ instanceof Error) {
+      throw Ŕ;
+    }
+
     assert(curve.isOnCurve(Ŕ));
 
     const ŕ = Ŕ.affineX.mod(n);

@@ -1,11 +1,15 @@
 "use strict";
 
-import { assert, BigInteger, Buffer, check, util } from "verifyme_utility"
+import {
+  assert, BigInteger, Buffer, check, Curve, KeyManager, Point, util,
+} from "verifyme_utility";
 
-import Blinder from "../blinder"
-import BlindSignaturePacket from "../../pgp/blind_signature_packet"
-import EcdsaBlindingContext from "./blinding_context"
-import server from "../../server_requests"
+import BlindSignaturePacket from "../../pgp/blind_signature_packet";
+import server from "../../server_requests";
+import Blinder from "../blinder";
+import AndreevEcdsaBlindingContext from "./blinding_context";
+
+import { ecc } from "kbpgp";
 
 /**
  * Representation of the ECDSA blinding algorithm presented by Oleg Andreev
@@ -13,10 +17,9 @@ import server from "../../server_requests"
  *
  * The variable naming follows the algorithms notation.
  */
-export default class AndreevEcdsaBlinder extends Blinder
-{
-  constructor()
-  {
+export default class AndreevEcdsaBlinder extends Blinder<AndreevEcdsaBlindingContext> {
+
+  constructor() {
     super();
   };
 
@@ -29,17 +32,20 @@ export default class AndreevEcdsaBlinder extends Blinder
    * @param {BigInteger} token
    *    This is used to validate the blinded request.
    */
-  async initContext(key_manager, token)
-  {
+  public async initContext(key_manager: KeyManager, token: BigInteger): Promise<void> {
     assert(check.isKeyManagerForEcdsaSign(key_manager));
     assert(check.isBigInteger(token));
 
-    const context = EcdsaBlindingContext.fromKey(key_manager);
+    const context: AndreevEcdsaBlindingContext = AndreevEcdsaBlindingContext.fromKey(key_manager);
+    if (null === context.curve) {
+      throw new Error("Context misses a curve.");
+    }
+
     context.blinding_factor = {
       a: await util.generateRandomScalar(context.curve),
       b: await util.generateRandomScalar(context.curve),
       c: await util.generateRandomScalar(context.curve),
-      d: await util.generateRandomScalar(context.curve)
+      d: await util.generateRandomScalar(context.curve),
     };
 
     context.hashed_token = util.calculateSha512(token);
@@ -60,14 +66,17 @@ export default class AndreevEcdsaBlinder extends Blinder
    * @returns {BigInteger}
    *    The blinded message.
    */
-  blind(message)
-  {
-    assert(check.isBigInteger(message));
-    assert(EcdsaBlindingContext.isValidBlindingContext(this.context));
+  public blind(message: BigInteger): BigInteger {
+    if (null === this.context) {
+      throw new Error("Context must not be null");
+    }
 
-    const n = this.context.curve.n;
-    const a = this.context.blinding_factor.a;
-    const b = this.context.blinding_factor.b;
+    assert(check.isBigInteger(message));
+    assert(AndreevEcdsaBlindingContext.isValidBlindingContext(this.context));
+
+    const n: BigInteger = this.context.curve.n;
+    const a: BigInteger = this.context.blinding_factor.a;
+    const b: BigInteger = this.context.blinding_factor.b;
 
     return message.multiply(a).add(b).mod(n);
   }
@@ -83,14 +92,17 @@ export default class AndreevEcdsaBlinder extends Blinder
    * @returns {BigInteger}
    *    The unblinded signed message.
    */
-  unblind(message)
-  {
-    assert(check.isBigInteger(message));
-    assert(EcdsaBlindingContext.isValidBlindingContext(this.context));
+  public unblind(message: BigInteger): BigInteger {
+    if (null === this.context) {
+      throw new Error("Context misses a curve.");
+    }
 
-    const n = this.context.curve.n;
-    const c = this.context.blinding_factor.c;
-    const d = this.context.blinding_factor.d;
+    assert(check.isBigInteger(message));
+    assert(AndreevEcdsaBlindingContext.isValidBlindingContext(this.context));
+
+    const n: BigInteger = this.context.curve.n;
+    const c: BigInteger = this.context.blinding_factor.c;
+    const d: BigInteger = this.context.blinding_factor.d;
 
     return message.multiply(c).add(d).mod(n);
   }
@@ -107,8 +119,7 @@ export default class AndreevEcdsaBlinder extends Blinder
    * @param {BlindSignaturePacket} packet
    *    The prepared {BlindSignaturePacket} including the raw signature.
    */
-  async forgeSignature(packet)
-  {
+  public async forgeSignature(packet: BlindSignaturePacket): Promise<void> {
     assert(packet instanceof BlindSignaturePacket);
 
     const { T, r }  = await this.requestFirstSignatureParameter();
@@ -116,9 +127,11 @@ export default class AndreevEcdsaBlinder extends Blinder
 
     assert(r.compareTo(BigInteger.ZERO) > 0);
     assert(s.compareTo(BigInteger.ZERO) > 0);
+    assert(packet.key.pub instanceof ecc.BaseEccKey);
+    const key =  packet.key.pub as ecc.ECDSA.Pub;
+    key.R = T;
 
     packet.sig = Buffer.concat([r.to_mpi_buffer(), s.to_mpi_buffer()]);
-    packet.key.pub.R = T;
     packet.raw = packet.write_unframed();
   }
 
@@ -130,17 +143,20 @@ export default class AndreevEcdsaBlinder extends Blinder
    *    T is the public key necessary to validate the final signature.
    *    r is the first part of the ECDSA signature.
    */
-  async requestFirstSignatureParameter()
-  {
-    assert(EcdsaBlindingContext.isValidBlindingContext(this.context));
+  private async requestFirstSignatureParameter(): Promise<{T: Point, r: BigInteger}> {
+    if (null === this.context) {
+      throw new Error("Context must not be null");
+    }
 
-    const curve = this.context.curve;
-    const n = curve.n;
+    assert(AndreevEcdsaBlindingContext.isValidBlindingContext(this.context));
 
-    const a = this.context.blinding_factor.a;
-    const b = this.context.blinding_factor.b;
-    const c = this.context.blinding_factor.c;
-    const d = this.context.blinding_factor.d;
+    const curve: Curve = this.context.curve;
+    const n: BigInteger = curve.n;
+
+    const a: BigInteger = this.context.blinding_factor.a;
+    const b: BigInteger = this.context.blinding_factor.b;
+    const c: BigInteger = this.context.blinding_factor.c;
+    const d: BigInteger = this.context.blinding_factor.d;
 
     const { P, Q } = await server.requestAndreevEcdsaInitialization(this.context);
     assert(curve.isOnCurve(P));
@@ -171,11 +187,10 @@ export default class AndreevEcdsaBlinder extends Blinder
    * @returns {BigInteger}
    *    The unblinded signed signature data.
    */
-  async requestSecondSignatureParameter(packet)
-  {
+  private async requestSecondSignatureParameter(packet: BlindSignaturePacket): Promise<BigInteger> {
     assert(packet instanceof BlindSignaturePacket);
     assert(check.isBigInteger(packet.raw_signature));
-    assert(EcdsaBlindingContext.isValidBlindingContext(this.context));
+    assert(AndreevEcdsaBlindingContext.isValidBlindingContext(this.context));
 
     const hash = util.calculateSha512(packet.raw_signature);
     const message = packet.key.pub.trunc_hash(hash.toBuffer());

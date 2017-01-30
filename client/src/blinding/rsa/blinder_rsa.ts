@@ -1,21 +1,20 @@
 "use strict";
 
-import { assert, BigInteger, check, util } from "verifyme_utility"
+import { assert, BigInteger, check, KeyManager, util } from "verifyme_utility";
 
-import Blinder from "../blinder"
-import BlindSignaturePacket from "../../pgp/blind_signature_packet"
-import RsaBlindingContext from "./blinding_context_rsa"
-import server  from "../../server_requests"
+import BlindSignaturePacket from "../../pgp/blind_signature_packet";
+import server from "../../server_requests";
+import Blinder from "../blinder";
+import RsaBlindingContext from "./blinding_context_rsa";
 
 /**
  * Representation of the rsa blinding algorithm.
  *
  * The variable naming follows the algorithms notation.
  */
-export default class RsaBlinder extends Blinder
-{
-  constructor()
-  {
+export default class RsaBlinder extends Blinder<RsaBlindingContext> {
+
+  constructor() {
     super();
   }
 
@@ -29,12 +28,14 @@ export default class RsaBlinder extends Blinder
    * @param {BigInteger} token
    *    This is used to validate the blinded request.
    */
-  async initContext(key_manager, token)
-  {
+  public async initContext(key_manager: KeyManager, token: BigInteger): Promise<void> {
     assert(check.isKeyManagerForRsaSign(key_manager));
     assert(check.isBigInteger(token));
 
-    let context = RsaBlindingContext.fromKey(key_manager);
+    const context = RsaBlindingContext.fromKey(key_manager);
+    if (context.modulus === null) {
+      throw new Error("Modulus must not be null.");
+    }
 
     const blinding_factor = await util.generateRsaBlindingFactor(context.modulus.bitLength());
     context.blinding_factor = token.multiply(blinding_factor);
@@ -57,14 +58,22 @@ export default class RsaBlinder extends Blinder
    * @returns {BigInteger}
    *    The blinded message.
    */
-  blind(message)
-  {
+  public blind(message: BigInteger): BigInteger {
     assert(check.isBigInteger(message));
     assert(RsaBlindingContext.isValidBlindingContext(this.context));
 
-    const r = this.context.blinding_factor;
-    const e = this.context.public_exponent;
-    const N = this.context.modulus;
+    if (this.context === null) {
+      throw new Error("Context must not be null.");
+    }
+
+    const rsa_context = this.context as RsaBlindingContext;
+    const r = rsa_context.blinding_factor;
+    const e = rsa_context.public_exponent;
+    const N = rsa_context.modulus;
+
+    if (r === null || e === null || N === null) {
+      throw new Error("r, e, N must not be null.");
+    }
 
     return message.multiply(r.modPow(e, N));
   }
@@ -80,13 +89,17 @@ export default class RsaBlinder extends Blinder
    * @returns {BigInteger}
    *    The unblinded message.
    */
-  unblind(message)
-  {
+  public unblind(message: BigInteger): BigInteger {
     assert(check.isBigInteger(message));
     assert(RsaBlindingContext.isValidBlindingContext(this.context));
 
-    const N = this.context.modulus;
-    const r = this.context.blinding_factor;
+    const rsa_context = this.context as RsaBlindingContext;
+    const N = rsa_context.modulus;
+    const r = rsa_context.blinding_factor;
+
+    if (r === null || N === null) {
+      throw new Error("r, N must not be null.");
+    }
 
     const r_inv = r.modInverse(N);
     return message.multiply(r_inv).mod(N);
@@ -102,17 +115,24 @@ export default class RsaBlinder extends Blinder
    * @param {BlindSignaturePacket} packet
    *    The prepared {BlindSignaturePacket} including the raw signature.
    */
-  async forgeSignature(packet)
-  {
+  public async forgeSignature(packet: BlindSignaturePacket): Promise<void> {
     assert(packet instanceof BlindSignaturePacket);
     assert(check.isBigInteger(packet.raw_signature));
     assert(RsaBlindingContext.isValidBlindingContext(this.context));
 
+    if (this.context === null) {
+      throw new Error("Context must not be null.");
+    }
+
     const message = packet.raw_signature;
     const blinded_message = this.blind(message);
     const signed_blinded_message = await server.requestRsaBlinding(blinded_message, this.context);
-    const signed_message = this.unblind(signed_blinded_message);
 
+    if (signed_blinded_message instanceof Error) {
+      throw signed_blinded_message;
+    }
+
+    const signed_message = this.unblind(signed_blinded_message);
     packet.sig = signed_message.to_mpi_buffer();
     packet.raw = packet.write_unframed();
   }

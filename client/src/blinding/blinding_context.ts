@@ -1,25 +1,15 @@
 "use strict";
 
-import { Buffer, KeyManager, Tags } from "verifyme_utility"
+import { BigInteger, Buffer, KeyManager, Tags } from "verifyme_utility";
 
 /**
  * An abstract blinding context object.
- * 
+ *
  * An algorithm specific full valid blinding context stores all
  * information that are necessary to complete the related blind
  * and unblinding steps.
  */
-export default class BlindingContext
-{
-  constructor()
-  {
-    if (this.constructor.name === "BlindingContext") {
-      throw new TypeError("Cannot construct BlindingContext instances directly");
-    }
-
-    /** @type {BigInteger|null} */
-    this.hashed_token = null;
-  }
+abstract class BlindingContext {
 
   /**
    * Checks if a given {object} is a BlindingContext which fulfills all requirements
@@ -31,24 +21,24 @@ export default class BlindingContext
    *    {true} if the object can be used to start the blind signature creation
    *    else {false}
    */
-  static isValidBlindingContext(object)
-  {
+  public static isValidBlindingContext(object: Object): boolean {
     return (object instanceof BlindingContext) && object.containsAllBlindingInformation();
   }
-  
+
   /**
    * Generates a blinding context based on the public information
    * extracted from the input {KeyManager} object.
-   * 
+   *
    * @param {KeyManager} key_manager
    *    The public key_manager that belongs to the blind signature issuer.
    * @return {BlindingContext}
-   *    The generated blinding context.   
+   *    The generated blinding context.
    */
-  static fromKey(key_manager)
-  {
-    throw new Error("Not yet implemented.");
+  public static fromKey(key_manager: KeyManager): BlindingContext {
+    throw new Error("Implementation Mising");
   }
+
+  public hashed_token: BigInteger;
 
   /**
    * Checks if all information are present that are necessary
@@ -58,10 +48,7 @@ export default class BlindingContext
    *    {true} if all necessary information are stored
    *    else {false}
    */
-  containsAllBlindingInformation()
-  {
-    throw new Error("Not yet implemented.");
-  }
+  public abstract containsAllBlindingInformation(): boolean;
 
   /**
    * Encodes raw signature data to fit the pgp standard for signatures of
@@ -74,10 +61,7 @@ export default class BlindingContext
    * @returns {BigInteger}
    *    the incoming signature data stored as {BigInteger}
    */
-  encodeSignaturePayload(data, hasher)
-  {
-    throw new Error("Not yet implemented.");
-  }
+  public abstract encodeSignaturePayload(data: Buffer, hasher: Function): BigInteger;
 
   /**
    * Returns the id of the verification algorithm.
@@ -86,8 +70,9 @@ export default class BlindingContext
    *    Id of the algorithm to verify a signature
    *    generated with this blinding context.
    */
-  verificationAlgorithm()
-  {
+  public verificationAlgorithm(): number {
     return Tags.verification_algorithms.default;
   }
 }
+
+export default BlindingContext;

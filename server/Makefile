@@ -1,20 +1,31 @@
-BABEL=node_modules/.bin/babel
-BABEL_NODE=node_modules/.bin/babel-node
-BABEL_INSTANBUL=node_modules/.bin/babel-istanbul
-MOCHA=node_modules/.bin/_mocha
-NODE=node
+INSTANBUL=node_modules/.bin/istanbul
+MOCHA=node_modules/.bin/mocha
+_MOCHA=node_modules/.bin/_mocha
+TSC=node_modules/.bin/tsc
+TSLINT=node_modules/.bin/tslint
 
-default: build run
-all: clean build run
+default: build
+all: clean build testA
 
-build: src/main.js
-	$(BABEL) -d dist/ src/
+run: build
+	@node dist/src/verifyme_server.js
 
-watch: src/main.js
-	$(BABEL) -w -d dist/ src/
+build:
+	${TSC}
+	${TSLINT} -c tslint.json src/*
 
-run: dist/main.js
-	$(NODE) dist/main.js
+watch:
+	${TSC} -w
+
+build-test:
+	${TSC} -p tsconfig.test.json
+	${TSLINT} -c tslint.json src/*
+
+test: build-test
+	$(INSTANBUL) cover $(_MOCHA) -- dist/test/
+
+test-debug: build-test
+	$(MOCHA) --debug-brk -- dist/test/
 
 clean:
 	@rm -rf dist/* coverage/*
@@ -25,4 +36,4 @@ setup-dev:
 setup-production:
 	@npm install --production
 
-.PHONY: clean setup-dev setup-production 
+.PHONY: clean setup-dev setup-production test

@@ -36,7 +36,7 @@ describe("client", function() {
     });
 
     it ("must return a rejected promise if string is no key representation", () => {
-      controls.userPublicKeyString = "123";
+      controls.setUserPublicKeyString("123");
 
       return client.getPublicKey()
         .catch(error => assert.instanceOf(error, Error));
@@ -51,7 +51,7 @@ describe("client", function() {
 
     it ("should return null if id is missing from html", () => {
       controls.loadFixture("test/fixture/missing_id.html");
-      assert.isNull(client.getPublicKeyString(), Error);
+      assert.isNull(client.getPublicKeyString());
     });
 
     const tests = [
@@ -65,7 +65,7 @@ describe("client", function() {
 
     for (const test of tests) {
       it ("should trim the input {string}", () => {
-        controls.userPublicKeyString = test.arg;
+        controls.setUserPublicKeyString(test.arg);
         assert.equal(test.expected, client.getPublicKeyString());
       });
     }
@@ -93,7 +93,7 @@ describe("client", function() {
     });
 
     it ("must throw if Token is not prime", () => {
-      controls.userTokenString = "A";
+      controls.setUserTokenString("A");
       assert.throws(() => {client.getToken()}, Error);
     });
   });
@@ -106,7 +106,7 @@ describe("client", function() {
 
     it ("should return null if id is missing from html", () => {
       controls.loadFixture("test/fixture/missing_id.html");
-      assert.isNull(client.getTokenString(), Error);
+      assert.isNull(client.getTokenString());
     });
 
     const tests = [
@@ -120,7 +120,7 @@ describe("client", function() {
 
     for (const test of tests) {
       it ("should trim the input string", () => {
-        controls.userTokenString = test.arg;
+        controls.setUserTokenString(test.arg);
         assert.equal(test.expected, client.getTokenString());
       });
     }
@@ -144,7 +144,7 @@ describe("client", function() {
     });
 
     it ("must throw if string is no key representation",() => {
-      controls.serverPublicKey = "123";
+      controls.setServerPublicKey("123");
       return client.getServerPublicKey()
         .catch(error => assert.instanceOf(error, Error));
     });
@@ -172,7 +172,7 @@ describe("client", function() {
 
     for (const test of tests) {
       it ("should trim the input string", () => {
-        controls.serverPublicKey = test.arg;
+        controls.setServerPublicKey(test.arg);
         assert.equal(test.expected, client.getServerPublicKeyString());
       });
     }
@@ -188,17 +188,13 @@ describe("client", function() {
       controls.loadFixture("test/fixture/minimal.html");
     });
 
-    it("should return null if input parameter is no string", () => {
-      assert.isNull(client.getTextAreaContent(123));
-    });
-
     it("should return null if input id does not exists", () => {
       assert.isNull(client.getTextAreaContent("myNonExistingID"));
     });
 
     it("should return a string with the textarea content if input id exists", () => {
       const string = "123";
-      controls.userPublicKeyString = string;
+      controls.setUserPublicKeyString(string);
 
       const result = client.getTextAreaContent(client.user_public_key_element_id);
       assert.isTrue(check.isString(result));

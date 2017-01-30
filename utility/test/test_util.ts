@@ -2,13 +2,13 @@
 
 import { assert } from "chai";
 
-import { BigInteger, Buffer } from "../src/types"
-import check from "../src/check"
-import util from "../src/util"
+import check from "../src/check";
+import { BigInteger, Buffer } from "../src/types";
+import util from "../src/util";
 
-import { public_keys } from "./helper/keys"
+import { public_keys } from "./helper/keys";
 
-describe("check", function() {
+describe("check", () => {
 
   ///---------------------------------
   /// #generateKeyFromString()
@@ -18,17 +18,19 @@ describe("check", function() {
 
     it("should throw if input string is not an ascii armored key", () => {
       return util.generateKeyFromString("a broken key")
-        .catch(error => assert.instanceOf(error, Error));
+        .catch((error) => assert.instanceOf(error, Error));
     });
 
     for (const id in public_keys) {
-      it("Setting: " + id +" - should return the promise of a {KeyManager} object if input is a pgp key", () => {
-        const promise = util.generateKeyFromString(public_keys[id]);
-        assert.instanceOf(promise, Promise);
+      if (public_keys.hasOwnProperty(id)) {
+        it("Setting: " + id + " - should return the promise of a {KeyManager} object if input is a pgp key", () => {
+          const promise = util.generateKeyFromString(public_keys[id]);
+          assert.instanceOf(promise, Promise);
 
-        return promise
-          .then(key => assert.isTrue(check.isKeyManager(key)));
-      });
+          return promise
+            .then((key) => assert.isTrue(check.isKeyManager(key)));
+        });
+      }
     }
   });
 
@@ -40,19 +42,19 @@ describe("check", function() {
 
     it("should return a rejected Promise if input bit size is not multiple of 8", () => {
       return util.generateTwoPrimeNumbers(15)
-        .then((answer) => assert.fail())
+        .then((_) => assert.fail())
         .catch((error) => assert.include(error.message, "multiple of 8"));
     });
 
     it("should return a rejected Promise if input bit size is smaller than 128", () => {
       return util.generateTwoPrimeNumbers(127)
-        .then((answer) => assert.fail())
+        .then((_) => assert.fail())
         .catch((error) => assert.include(error.message, ">= 128"));
     });
 
     it("should return a rejected Promise if input bit size is bigger than 8192", () => {
       return util.generateTwoPrimeNumbers(8193)
-        .then((answer) => assert.fail())
+        .then((_) => assert.fail())
         .catch((error) => assert.include(error.message, "<= 8192"));
     });
 
@@ -66,11 +68,11 @@ describe("check", function() {
 
           primeNumbers.forEach((prime) => {
             assert.isTrue(check.isBigInteger(prime));
-            assert.isTrue(prime.isProbablePrime());
+            assert.isTrue(prime.isProbablePrime(10));
             assert.equal(bitLength, prime.bitLength());
           });
           done();
-        })
+        });
     });
   });
 
@@ -82,19 +84,19 @@ describe("check", function() {
 
     it("should return a rejected Promise if input bit size is not multiple of 8", () => {
       return util.generateRsaBlindingFactor(15)
-        .then((answer) => assert.fail())
+        .then((_) => assert.fail())
         .catch((error) => assert.include(error.message, "multiple of 8"));
     });
 
     it("should return a rejected Promise if input bit size is smaller than 256", () => {
       return util.generateRsaBlindingFactor(255)
-        .then((answer) => assert.fail())
+        .then((_) => assert.fail())
         .catch((error) => assert.include(error.message, ">= 256"));
     });
 
     it("should return a rejected Promise if input bit size is bigger than 16384", () => {
       return util.generateRsaBlindingFactor(16385)
-        .then((answer) => assert.fail())
+        .then((_) => assert.fail())
         .catch((error) => assert.include(error.message, "<= 16384"));
     });
 
@@ -108,7 +110,7 @@ describe("check", function() {
           assert.equal(bitLength, blinding_factor.bitLength());
 
           done();
-        })
+        });
     });
   });
 

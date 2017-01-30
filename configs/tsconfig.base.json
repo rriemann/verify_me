@@ -1,0 +1,29 @@
+{
+    "compilerOptions": {
+        "module": "amd",
+        
+        "declaration": true,
+        "importHelpers": true,
+        "noEmitHelpers": true,
+        "inlineSourceMap": true,
+        
+        "alwaysStrict": true,
+        "forceConsistentCasingInFileNames": true,
+        "noEmitOnError": true,
+        "noImplicitAny": true,
+        "noImplicitReturns": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters":  true,
+        "strictNullChecks": true,
+
+        "preserveConstEnums": true,
+        "removeComments": true,
+
+        "pretty": true
+   },
+
+    "exclude": [
+        "dist/",
+        "node_modules/"
+    ]
+}

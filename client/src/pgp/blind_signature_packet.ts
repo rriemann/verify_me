@@ -1,68 +1,17 @@
 "use strict";
 
-import * as kbpgp from "kbpgp"
-const Constants = kbpgp.const;
+import { opkts } from "kbpgp";
+import * as kbpgp from "kbpgp";
+const Constants = (kbpgp as any).const;
 
-import { assert, Buffer, check } from "verifyme_utility"
-import * as sig from "../../node_modules/kbpgp/lib/openpgp/packet/signature"
-
-import BlindingContext from "./../blinding/blinding_context"
+import { assert, BigInteger, Buffer, check, KeyManager } from "verifyme_utility";
+import BlindingContext from "./../blinding/blinding_context";
 
 /**
  * A kind of key signature packet where the signer
  * does not know whose key is signed.
  */
-export default class BlindSignaturePacket extends sig.Signature
-{
-  /**
-   * Creates a new signature packet.
-   *
-   * To avoid that the signer later finds a relationship between the
-   * signature request and the published signature the signature creation
-   * time is randomized.
-   *
-   * @param {KeyManager} target_key
-   *    The key to sign stored in a {KeyManger}.
-   * @param {KeyManager} sig_key
-   *    The signers public key stored in a {KeyManger}.
-   * @param {BlindingContext} context
-   *    An algorithm based signing context to encode the prepared
-   *    raw signature data.
-   */
-  constructor(target_key, sig_key, context)
-  {
-    assert(check.isKeyManager(target_key));
-    assert(check.isKeyManager(sig_key));
-    assert(context instanceof BlindingContext);
-
-    const hashed_subpackets = [
-      new sig.CreationTime(BlindSignaturePacket.calculateRandomCreationDate(target_key)),
-      new sig.VerificationAlgorithm(context.verificationAlgorithm())
-    ];
-
-    hashed_subpackets[1].critical = true;
-
-    const unhashed_subpackets = [
-      new sig.Issuer(sig_key.get_pgp_key_id())
-    ];
-
-    const ctor_args = {
-      hashed_subpackets: hashed_subpackets,
-      key: sig_key.get_primary_keypair(),
-      key_id: sig_key.get_pgp_key_id(),
-      unhashed_subpackets: unhashed_subpackets,
-      type: Constants.openpgp.sig_types.persona,
-      version: Constants.openpgp.versions.signature.V4
-    };
-
-    super(ctor_args);
-
-    this.tag = kbpgp.const.openpgp.packet_tags.signature;
-    this.target_key = target_key;
-    this.primary = target_key.pgp.key(target_key.pgp.primary);
-
-    this.prepareRawSignature(context);
-  }
+export default class BlindSignaturePacket extends kbpgp.opkts.Signature {
 
   /**
    * Calculates a random creation time between the given keys creation und expire date.
@@ -73,8 +22,7 @@ export default class BlindSignaturePacket extends sig.Signature
    * @returns {number}
    *    A random integer number somewhere in the given keys lifespan.
    */
-  static calculateRandomCreationDate(target_key)
-  {
+  public static calculateRandomCreationDate(target_key: KeyManager): number {
     assert(check.isKeyManager(target_key));
 
     const lifespan = target_key.primary.lifespan;
@@ -94,6 +42,60 @@ export default class BlindSignaturePacket extends sig.Signature
     return Math.floor(lifespan.generated + Math.random() * key_expire);
   }
 
+  public tag: number;
+  public target_key: KeyManager;
+  public raw: Buffer;
+  public raw_signature: BigInteger;
+
+  /**
+   * Creates a new signature packet.
+   *
+   * To avoid that the signer later finds a relationship between the
+   * signature request and the published signature the signature creation
+   * time is randomized.
+   *
+   * @param {KeyManager} target_key
+   *    The key to sign stored in a {KeyManger}.
+   * @param {KeyManager} sig_key
+   *    The signers public key stored in a {KeyManger}.
+   * @param {BlindingContext} context
+   *    An algorithm based signing context to encode the prepared
+   *    raw signature data.
+   */
+  constructor(target_key: KeyManager, sig_key: KeyManager, context: BlindingContext) {
+    assert(check.isKeyManager(target_key));
+    assert(check.isKeyManager(sig_key));
+    assert(context instanceof BlindingContext);
+
+    const hashed_subpackets = [
+      new opkts.CreationTime(BlindSignaturePacket.calculateRandomCreationDate(target_key)),
+      new opkts.VerificationAlgorithm(context.verificationAlgorithm()),
+    ];
+
+    hashed_subpackets[1].critical = true;
+
+    const unhashed_subpackets = [
+      new opkts.Issuer(sig_key.get_pgp_key_id()),
+    ];
+
+    const ctor_args = {
+      hashed_subpackets,
+      key: sig_key.get_primary_keypair(),
+      key_id: sig_key.get_pgp_key_id(),
+      unhashed_subpackets,
+      type: Constants.openpgp.sig_types.persona,
+      version: Constants.openpgp.versions.signature.V4,
+    };
+
+    super(ctor_args);
+
+    this.tag = Constants.openpgp.packet_tags.signature;
+    this.target_key = target_key;
+    this.primary = target_key.pgp.key(target_key.pgp.primary);
+
+    this.prepareRawSignature(context);
+  }
+
   /**
    * Prepares the raw signature data.
    *
@@ -105,8 +107,7 @@ export default class BlindSignaturePacket extends sig.Signature
    *    This context should be created from the signers public key and
    *    is used to encode the data in preparation of the signing algorithm.
    */
-  prepareRawSignature(context)
-  {
+  public prepareRawSignature(context: BlindingContext): void {
     assert(context instanceof BlindingContext);
 
     const signData = this.generateSignaturePayload();
@@ -124,8 +125,7 @@ export default class BlindSignaturePacket extends sig.Signature
    * @returns {Buffer}
    *    The raw unsinged signature data.
    */
-  generateSignaturePayload()
-  {
+  public generateSignaturePayload(): Buffer {
     const key_material_packet = this.target_key.pgp.key(this.target_key.pgp.primary);
     const pubKeyData = key_material_packet.to_signature_payload();
 
@@ -133,7 +133,7 @@ export default class BlindSignaturePacket extends sig.Signature
     const userIdData = user_id_packet.to_signature_payload();
 
     return Buffer.concat([
-      pubKeyData, userIdData, this.generateSignatureData()
+      pubKeyData, userIdData, this.generateSignatureData(),
     ]);
   }
 
@@ -149,8 +149,7 @@ export default class BlindSignaturePacket extends sig.Signature
    * @returns {Buffer}
    *    Public signature packet information.
    */
-  generateSignatureData()
-  {
+  public generateSignatureData(): Buffer {
     const sigBody = this.generateSignatureBody();
     const sigTrailer = this.generateSignatureTrailer(sigBody.length);
 
@@ -171,16 +170,16 @@ export default class BlindSignaturePacket extends sig.Signature
    * @returns {Buffer}
    *    The signature trailer.
    */
-  generateSignatureTrailer(hash_data_length)
-  {
+  public generateSignatureTrailer(hash_data_length: number): Buffer {
     assert(check.isInteger(hash_data_length));
 
     return Buffer.concat([
       new Buffer([
         this.version,
-        0xff
+        0xff,
       ]),
-      kbpgp.util.uint_to_buffer(32, hash_data_length)
+
+      kbpgp.util.uint_to_buffer(32, hash_data_length),
     ]);
   }
 
@@ -200,21 +199,20 @@ export default class BlindSignaturePacket extends sig.Signature
    * @returns {Buffer}
    *    Part of the signature body to hash.
    */
-  generateSignatureBody()
-  {
+  public generateSignatureBody(): Buffer {
     const hashedSubpkts = this.hashed_subpackets
-      .map(subpacket => subpacket.to_buffer())
+      .map((subpacket) => subpacket.to_buffer())
       .reduce((lhs, rhs) => Buffer.concat([lhs, rhs]));
 
     return Buffer.concat([
       new Buffer([
         this.version,
         this.type,
-        this.key.type,
-        this.hasher.type
+        this.key.get_type(),
+        this.hasher.type,
       ]),
       kbpgp.util.uint_to_buffer(16, hashedSubpkts.length),
-      hashedSubpkts
+      hashedSubpkts,
     ]);
   }
 
@@ -236,11 +234,10 @@ export default class BlindSignaturePacket extends sig.Signature
    * # keep naming to overwrite Signature.write_unframed()
    * #
    */
-  write_unframed()
-  {
+  public write_unframed(): Buffer {
     const unhashed_packet_data = this.unhashed_subpackets.reduce(
-      (prevValue, subpacket) => { return Buffer.concat([prevValue, subpacket.to_buffer()])},
-      new Buffer([])
+      (prevValue: Buffer, subpacket) => Buffer.concat([prevValue, subpacket.to_buffer()]),
+      new Buffer([]),
     );
 
     return Buffer.concat([
@@ -248,7 +245,7 @@ export default class BlindSignaturePacket extends sig.Signature
       kbpgp.util.uint_to_buffer(16, unhashed_packet_data.length),
       unhashed_packet_data,
       this.signed_hash_value_hash,
-      this.sig
+      this.sig,
     ]);
   }
 }

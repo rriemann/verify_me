@@ -1,9 +1,9 @@
 "use strict";
 
-import * as kbpgp from "kbpgp"
+import * as kbpgp from "kbpgp";
 
 import check, { assert } from "./check";
-import { BigInteger, Curve, KeyManager } from "./types"
+import { BigInteger, Curve, KeyManager } from "./types";
 
 /**
  * Converts a given armored key string into a kbpgp {KeyManager} object.
@@ -13,17 +13,17 @@ import { BigInteger, Curve, KeyManager } from "./types"
  * @returns {Promise}
  *    The promise of a {KeyManager} object.
  */
-function generateKeyFromString(key_as_string : string): Promise<KeyManager>
-{
+function generateKeyFromString(key_as_string: string): Promise<KeyManager> {
   return new Promise((resolve, reject) => {
 
     assert(check.isString(key_as_string), "Input parameter is not of type string.");
 
     KeyManager.import_from_armored_pgp({ armored: key_as_string },
-      (err : string, key_manager : KeyManager) => {
-        if (err) { reject(err); }
-        else {
-          resolve(<KeyManager>key_manager);
+      (err: string, key_manager: KeyManager) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve( key_manager as KeyManager);
         }
       });
   });
@@ -40,21 +40,21 @@ function generateKeyFromString(key_as_string : string): Promise<KeyManager>
  * @returns {Promise}
  *    The promise of a {BigInteger} scalar [1, n-1]
  */
-async function generateRandomScalar(curve : Curve)
-{
+async function generateRandomScalar(curve: Curve): Promise<BigInteger> {
   assert(check.isCurve(curve));
 
-  return new Promise((resolve, reject) =>
-    curve.random_scalar(
-      k => {
-
+  const scalar_promise: Promise<BigInteger> = new Promise(
+    (resolve, _) => curve.random_scalar(
+      (k) => {
         // assert [1, n-1]
         assert(k.compareTo(BigInteger.ZERO) >= 0);
         assert(k.compareTo(curve.n) < 0);
-
         resolve(k);
-      })
+      },
+    ),
   );
+
+  return scalar_promise;
 }
 
 /**
@@ -65,15 +65,14 @@ async function generateRandomScalar(curve : Curve)
  * @returns {BigInteger}
  *    the requested blinding factor.
  */
-async function generateRsaBlindingFactor(bitLength: number)
-{
+async function generateRsaBlindingFactor(bitLength: number): Promise<BigInteger> {
   assert(check.isInteger(bitLength),
     "The blinding factor bit length is no integer but a '" + bitLength + "'");
   assert((bitLength % 8 === 0) && bitLength >= 256 && bitLength <= 16384,
     "The blinding factor bit length must be a multiple of 8 bits and >= 256 and <= 16384");
 
   const sub_prime_length = Math.floor(bitLength / 2);
-  const primes: Array<BigInteger> = await generateTwoPrimeNumbers(sub_prime_length);
+  const primes: BigInteger[] = await generateTwoPrimeNumbers(sub_prime_length);
 
   return primes[0].multiply(primes[1]);
 }
@@ -87,9 +86,8 @@ async function generateRsaBlindingFactor(bitLength: number)
  * @returns {Promise}
  *    The promise of two prime numbers with the requesterd bit length.
  */
-function generateTwoPrimeNumbers(primeBitLength: number): Promise<Array<BigInteger>>
-{
-  return new Promise<Array<BigInteger>>((resolve, reject) => {
+function generateTwoPrimeNumbers(primeBitLength: number): Promise<BigInteger[]> {
+  return new Promise<BigInteger[]>((resolve, reject) => {
 
     assert(check.isInteger(primeBitLength),
       "The prime bit length is no integer but a '" + primeBitLength + "'");
@@ -98,7 +96,7 @@ function generateTwoPrimeNumbers(primeBitLength: number): Promise<Array<BigInteg
 
     const key_arguments = {
       e: 65537,
-      nbits: primeBitLength * 2
+      nbits: primeBitLength * 2,
     };
 
     kbpgp.asym.RSA.generate(key_arguments, (err, key) => {
@@ -119,8 +117,7 @@ function generateTwoPrimeNumbers(primeBitLength: number): Promise<Array<BigInteg
  * @returns {BigInteger}
  *    Hash digest as {string} or {null} if input message is no string object.
  */
-function calculateSha512(message: BigInteger): BigInteger
-{
+function calculateSha512(message: BigInteger): BigInteger {
   assert(check.isBigInteger(message));
 
   const hash_buffer = kbpgp.hash.SHA512(message.toBuffer());
@@ -132,7 +129,7 @@ const util_api = {
   generateRandomScalar,
   generateRsaBlindingFactor,
   generateTwoPrimeNumbers,
-  calculateSha512
+  calculateSha512,
 };
 
 export default util_api;

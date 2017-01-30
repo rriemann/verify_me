@@ -1,6 +1,6 @@
 "use strict";
 
-export const rsa_1024_pub =
+const rsa_1024_pub =
 `-----BEGIN PGP PUBLIC KEY BLOCK-----
 Version: GnuPG v2
 
@@ -21,7 +21,7 @@ eAKgMA16JYWgH92zhkJjev9q
 =/d/V
 -----END PGP PUBLIC KEY BLOCK-----`;
 
-export const rsa_1024_priv =
+const rsa_1024_priv =
 `-----BEGIN PGP PRIVATE KEY BLOCK-----
 Version: GnuPG v2
 
@@ -58,7 +58,7 @@ oB/ds4ZCY3r/ag==
 =W6K5
 -----END PGP PRIVATE KEY BLOCK-----`;
 
-export const rsa_2048_pub =
+const rsa_2048_pub =
 `-----BEGIN PGP PUBLIC KEY BLOCK-----
 Version: GnuPG v2
 
@@ -90,7 +90,7 @@ YwgNoDvo
 =4p/7
 -----END PGP PUBLIC KEY BLOCK-----`;
 
-export const rsa_2048_priv =
+const rsa_2048_priv =
 `-----BEGIN PGP PRIVATE KEY BLOCK-----
 Version: GnuPG v2
 
@@ -151,7 +151,7 @@ KiTos9bXr7C4K6tcWnsGm/ISDn2W9VhcHvs1fD2/VMO3JmG6hKlxLs7s15/Ajwqr
 =iD/x
 -----END PGP PRIVATE KEY BLOCK-----`;
 
-export const rsa_2048_expires_5y_pub =
+const rsa_2048_expires_5y_pub =
 `-----BEGIN PGP PUBLIC KEY BLOCK-----
 Version: GnuPG v2
 
@@ -183,7 +183,7 @@ wlMeztOm8Dzfat/sIVIfBNm7tqUuwGQhDFhwiFY=
 =DhQs
 -----END PGP PUBLIC KEY BLOCK-----`;
 
-export const rsa_2048_expires_5y_priv =
+const rsa_2048_expires_5y_priv =
 `-----BEGIN PGP PRIVATE KEY BLOCK-----
 Version: GnuPG v2
 
@@ -244,7 +244,7 @@ Ju7CUx7O06bwPN9q3+whUh8E2bu2pS7AZCEMWHCIVg==
 =szcd
 -----END PGP PRIVATE KEY BLOCK-----`;
 
-export const rsa_4096_pub =
+const rsa_4096_pub =
 `-----BEGIN PGP PUBLIC KEY BLOCK-----
 Version: GnuPG v2
 
@@ -297,7 +297,7 @@ O8s/MYwtFv0+hl5UG6QMawhbmuyrjA==
 =mzTS
 -----END PGP PUBLIC KEY BLOCK-----`;
 
-export const rsa_4096_priv =
+const rsa_4096_priv =
 `-----BEGIN PGP PRIVATE KEY BLOCK-----
 Version: GnuPG v2
 
@@ -406,7 +406,7 @@ DGsIW5rsq4w=
 =NcIB
 -----END PGP PRIVATE KEY BLOCK-----`;
 
-export const dsa_elg_768_1024_pub =
+const dsa_elg_768_1024_pub =
 `-----BEGIN PGP PUBLIC KEY BLOCK-----
 Version: GnuPG v2
 
@@ -430,7 +430,7 @@ n1N9Vk1cgzvUe/AhpMZ+uAnYw5fM
 =hF2U
 -----END PGP PUBLIC KEY BLOCK-----`;
 
-export const dsa_elg_768_1024_priv =
+const dsa_elg_768_1024_priv =
 `-----BEGIN PGP PRIVATE KEY BLOCK-----
 Version: GnuPG v2
 
@@ -457,7 +457,7 @@ TWee96peMOQAn1N9Vk1cgzvUe/AhpMZ+uAnYw5fM
 =8V7I
 -----END PGP PRIVATE KEY BLOCK-----`;
 
-export const dsa_elg_3072_4096_pub =
+const dsa_elg_3072_4096_pub =
 `-----BEGIN PGP PUBLIC KEY BLOCK-----
 Version: GnuPG v2
 
@@ -516,7 +516,7 @@ AP45TaK9EehtvrgwwhAo/+f0OCCDLnlWG1hxd8RpsBOn0Q==
 =APfx
 -----END PGP PUBLIC KEY BLOCK-----`;
 
-export const dsa_elg_3072_4096_priv =
+const dsa_elg_3072_4096_priv =
 `-----BEGIN PGP PRIVATE KEY BLOCK-----
 Version: GnuPG v2
 
@@ -579,7 +579,7 @@ CgkQh0PeaeWeZpRPsgD/RaMpYtELdvx/PpIuFVERK9Ng0kyOKwAP54ZlXSCyRxoA
 =CELS
 -----END PGP PRIVATE KEY BLOCK-----`;
 
-export const ecc_nist_p_256_pub =
+const ecc_nist_p_256_pub =
 `-----BEGIN PGP PUBLIC KEY BLOCK-----
 Version: GnuPG v2
 
@@ -595,7 +595,7 @@ pjjIRPDQbGcxws9ak83fYWp7ZRiVGybESaM=
 =moze
 -----END PGP PUBLIC KEY BLOCK-----`;
 
-export const ecc_nist_p_256_priv =
+const ecc_nist_p_256_priv =
 `-----BEGIN PGP PRIVATE KEY BLOCK-----
 Version: GnuPG v2
 
@@ -614,7 +614,7 @@ GBMIAAkFAlaCqMsCGwwACgkQr2KhPm5+TX9d5QEAoiTsuXJpGiypcPmVxSQCAfEn
 =v3g3
 -----END PGP PRIVATE KEY BLOCK-----`;
 
-export const ecc_nist_p_521_pub =
+const ecc_nist_p_521_pub =
 `-----BEGIN PGP PUBLIC KEY BLOCK-----
 Version: GnuPG v2
 
@@ -635,7 +635,7 @@ w7RUwmVWfZhKAQwaF5pYnT9xpCA1ATHNhtkjYWU7Z0bvGZK8foRe6LN4
 =tzZO
 -----END PGP PUBLIC KEY BLOCK-----`;
 
-export const ecc_nist_p_521_priv =
+const ecc_nist_p_521_priv =
 `-----BEGIN PGP PRIVATE KEY BLOCK-----
 Version: GnuPG v2
 
@@ -661,7 +661,7 @@ ZVZ9mEoBDBoXmlidP3GkIDUBMc2G2SNhZTtnRu8Zkrx+hF7os3g=
 =vLf1
 -----END PGP PRIVATE KEY BLOCK-----`;
 
-export const ecc_bp_p_256_pub =
+const ecc_bp_p_256_pub =
 `-----BEGIN PGP PUBLIC KEY BLOCK-----
 Version: GnuPG v2
 
@@ -677,7 +677,7 @@ malRpi1XAP4r8/S6Jxa79xmEj1B6ebm1Xs7wCxbQE3LGqcjZWH1W0QD+PtXRs809
 =dQvh
 -----END PGP PUBLIC KEY BLOCK-----`;
 
-export const ecc_bp_p_256_priv =
+const ecc_bp_p_256_priv =
 `-----BEGIN PGP PRIVATE KEY BLOCK-----
 Version: GnuPG v2
 
@@ -696,7 +696,7 @@ GBMIAAkFAlaCqQsCGwwACgkQAjdbYpmpUaYtVwD+K/P0uicWu/cZhI9Qenm5tV7O
 =/zom
 -----END PGP PRIVATE KEY BLOCK-----`;
 
-export const ecc_bp_p_512_pub =
+const ecc_bp_p_512_pub =
 `-----BEGIN PGP PUBLIC KEY BLOCK-----
 Version: GnuPG v2
 
@@ -717,7 +717,7 @@ w7RUwmVWfZhKAQwaF5pYnT9xpCA1ATHNhtkjYWU7Z0bvGZK8foRe6LN4
 =tzZO
 -----END PGP PUBLIC KEY BLOCK-----`;
 
-export const ecc_bp_p_512_priv =
+const ecc_bp_p_512_priv =
 `-----BEGIN PGP PRIVATE KEY BLOCK-----
 Version: GnuPG v2
 
@@ -743,7 +743,7 @@ ZVZ9mEoBDBoXmlidP3GkIDUBMc2G2SNhZTtnRu8Zkrx+hF7os3g=
 =vLf1
 -----END PGP PRIVATE KEY BLOCK-----`;
 
-export const ecc_curve_25519_pub =
+const ecc_curve_25519_pub =
 `-----BEGIN PGP PUBLIC KEY BLOCK-----
 Version: GnuPG v2
 
@@ -755,7 +755,7 @@ BQ==
 =K89o
 -----END PGP PUBLIC KEY BLOCK-----`;
 
-export const ecc_curve_25519_priv =
+const ecc_curve_25519_priv =
 `-----BEGIN PGP PRIVATE KEY BLOCK-----
 Version: GnuPG v2
 
@@ -773,7 +773,7 @@ export const public_keys = [
   dsa_elg_768_1024_pub, dsa_elg_3072_4096_pub,
   ecc_nist_p_256_pub, ecc_nist_p_521_pub,
   ecc_bp_p_256_pub, ecc_bp_p_512_pub,
-  ecc_curve_25519_pub
+  ecc_curve_25519_pub,
 ];
 
 export const private_keys = [
@@ -781,68 +781,68 @@ export const private_keys = [
   dsa_elg_768_1024_priv, dsa_elg_3072_4096_priv,
   ecc_nist_p_256_priv, ecc_nist_p_521_priv,
   ecc_bp_p_256_priv, ecc_bp_p_512_priv,
-  ecc_curve_25519_priv
+  ecc_curve_25519_priv,
 ];
 
 export const rsa = {
   1024: {
+    priv: rsa_1024_priv,
     pub: rsa_1024_pub,
-    priv: rsa_1024_priv
   },
   2048: {
+    priv: rsa_2048_priv,
     pub: rsa_2048_pub,
-    priv: rsa_2048_priv
   },
   4096: {
+    priv: rsa_4096_priv,
     pub: rsa_4096_pub,
-    priv: rsa_4096_priv
   },
   expires: {
+    priv: rsa_2048_expires_5y_priv,
     pub: rsa_2048_expires_5y_pub,
-    priv: rsa_2048_expires_5y_priv
-  }
+  },
 };
 
 export const dsa = {
   768: {
+    priv: dsa_elg_768_1024_priv,
     pub: dsa_elg_768_1024_pub,
-    priv: dsa_elg_768_1024_priv
   },
   3072: {
+    priv: dsa_elg_3072_4096_priv,
     pub: dsa_elg_3072_4096_pub,
-    priv: dsa_elg_3072_4096_priv
-  }
+  },
 };
 
 export const ecc = {
-  nist: {
-    256: {
-      pub: ecc_nist_p_256_pub,
-      priv: ecc_nist_p_256_priv
-    },
-    521: {
-      pub: ecc_nist_p_521_pub,
-      priv: ecc_nist_p_521_priv
-    }
-  },
   bp: {
     256: {
+      priv: ecc_bp_p_256_priv,
       pub: ecc_bp_p_256_pub,
-      priv: ecc_bp_p_256_priv
     },
     512: {
+      priv: ecc_bp_p_512_priv,
       pub: ecc_bp_p_512_pub,
-      priv: ecc_bp_p_512_priv
-    }
+    },
   },
   djb: {
     curve_25519: {
+      priv: ecc_curve_25519_priv,
       pub: ecc_curve_25519_pub,
-      priv: ecc_curve_25519_priv
-    }
-  }
+    },
+  },
+  nist: {
+    256: {
+      priv: ecc_nist_p_256_priv,
+      pub: ecc_nist_p_256_pub,
+    },
+    521: {
+      priv: ecc_nist_p_521_priv,
+      pub: ecc_nist_p_521_pub,
+    },
+  },
 };
 
 export default {
-  rsa, dsa, ecc
+  rsa, dsa, ecc,
 };

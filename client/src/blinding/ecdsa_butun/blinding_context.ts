@@ -1,34 +1,13 @@
 "use strict";
 
-import { assert, BigInteger, check, Tags } from "verifyme_utility"
+import { assert, BigInteger, check, Curve, KeyManager, Point, Tags } from "verifyme_utility";
 
-import BlindingContext from "../blinding_context"
+import BlindingContext from "../blinding_context";
 
 /**
  * A ecc blinding context.
  */
-export default class ButunEcdsaBlindingContext extends BlindingContext
-{
-  constructor()
-  {
-    super();
-
-    /** @type {Curve|null} */
-    this.curve = null;
-
-    /** @type {Point|null} */
-    this.signers_public_key = null;
-
-    /** @type {BigInteger|null} */
-    this.hashed_token = null;
-
-    this.blinding_factor = {
-      /** @type {BigInteger|null} */
-      a: null,
-      /** @type {BigInteger|null} */
-      b: null
-    };
-  }
+export default class ButunEcdsaBlindingContext extends BlindingContext {
 
   /**
    * Checks if a given {object} is a ButunEcdsaBlindingContext which fulfills all requirements
@@ -40,8 +19,7 @@ export default class ButunEcdsaBlindingContext extends BlindingContext
    *    {true} if the object can be used to start the ecdsa blind signature creation
    *    else {false}
    */
-  static isValidBlindingContext(object)
-  {
+  public static isValidBlindingContext(object: any): boolean {
     return (object instanceof ButunEcdsaBlindingContext) && object.containsAllBlindingInformation();
   }
 
@@ -51,20 +29,31 @@ export default class ButunEcdsaBlindingContext extends BlindingContext
    *
    * @param {KeyManager} key_manager
    *    The ECC based public key_manager that belongs to the blind signature issuer.
-   * @return {AndreevEcdsaBlindingContext}
+   * @return {ButunEcdsaBlindingContext}
    *    The generated blinding context.
    */
-  static fromKey(key_manager)
-  {
+  public static fromKey(key_manager: KeyManager): ButunEcdsaBlindingContext {
     assert(check.isKeyManagerForEcdsaSign(key_manager));
 
-    const public_key_package = key_manager.get_primary_keypair().pub;
+    const public_key_package: any = key_manager.get_primary_keypair().pub;
 
-    let context = new ButunEcdsaBlindingContext();
+    const context = new ButunEcdsaBlindingContext();
     context.curve = public_key_package.curve;
     context.signers_public_key = public_key_package.R;
 
     return context;
+  }
+
+  public blinding_factor: {
+    a: BigInteger,
+    b: BigInteger,
+  };
+
+  public curve: Curve;
+  public signers_public_key: Point;
+
+  constructor() {
+    super();
   }
 
   /**
@@ -80,15 +69,18 @@ export default class ButunEcdsaBlindingContext extends BlindingContext
    *    {true} if all necessary information are stored
    *    else {false}
    */
-  containsAllBlindingInformation()
-  {
+  public containsAllBlindingInformation(): boolean {
+    if (this.curve === null || this.signers_public_key === null) {
+      return false;
+    }
+
     return check.isCurve(this.curve)
         && check.isBigInteger(this.hashed_token)
         && check.isPoint(this.signers_public_key)
         && this.curve.isOnCurve(this.signers_public_key)
         && null != this.blinding_factor
         && this.blinding_factor.hasOwnProperty("a") && check.isBigInteger(this.blinding_factor.a)
-        && this.blinding_factor.hasOwnProperty("b") && check.isBigInteger(this.blinding_factor.b)
+        && this.blinding_factor.hasOwnProperty("b") && check.isBigInteger(this.blinding_factor.b);
   }
 
   /**
@@ -101,8 +93,7 @@ export default class ButunEcdsaBlindingContext extends BlindingContext
    * @returns {BigInteger}
    *    the incoming signature data stored as {BigInteger}
    */
-  encodeSignaturePayload(data, hasher)
-  {
+  public encodeSignaturePayload(data: Buffer, hasher: Function): BigInteger {
     assert(check.isBuffer(data));
     return BigInteger.fromBuffer(data);
   }
@@ -114,8 +105,7 @@ export default class ButunEcdsaBlindingContext extends BlindingContext
    *    Id of the butun algorithm to verify a signature
    *    generated with this blinding context.
    */
-  verificationAlgorithm()
-  {
+  public verificationAlgorithm(): number {
     return Tags.verification_algorithms.butun;
   }
 }

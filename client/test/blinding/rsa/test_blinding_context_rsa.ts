@@ -13,14 +13,10 @@ describe("blinding_context_rsa", function() {
   // suite functions
   //
 
-  let context = null;
+  let context: RSABlindingContext;
 
   beforeEach( () => {
-    context = new RSABlindingContext(null);
-  });
-
-  afterEach( () => {
-    context = null;
+    context = new RSABlindingContext();
   });
 
   ///-----------------------------------
@@ -61,10 +57,6 @@ describe("blinding_context_rsa", function() {
   ///-----------------------------------
 
   describe("#fromKey", () => {
-
-    it ("should throw if input is no {KeyManager}", () => {
-      assert.throws(() => RSABlindingContext.fromKey(123), Error);
-    });
 
     it ("should return {RsaBlindingContext} if input is a rsa containing {KeyManager}", async () => {
       const key = await util.generateKeyFromString(sample_keys.rsa[1024].pub);

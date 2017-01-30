@@ -1,29 +1,19 @@
 "use strict";
 
-import { KeyManager } from "kbpgp"
-import { assert, check } from "verifyme_utility"
+import { KeyManager } from "kbpgp";
+import { BigInteger } from "verifyme_utility";
+
+import BlindSignaturePacket from "../pgp/blind_signature_packet";
+import BlindingContext from "./blinding_context";
 
 /**
  * Representation of a blinding algorithm.
  */
-export default class Blinder
-{
-  /**
-   * Creates a blinding algorithm representation based
-   */
-  constructor()
-  {
-    assert(this.constructor.name !== "Blinder", "Cannot construct Blinding instances directly");
+abstract class Blinder<Context extends BlindingContext> {
 
-    /** @type {KeyManager|null} **/
-    this.key_manager = null;
-
-    /** @type {BigInteger|null} **/
-    this.token = null;
-
-    /** @type {BlindingContext|null} **/
-    this.context = null;
-  }
+  public context: Context;
+  public key_manager: KeyManager;
+  public token: BigInteger;
 
   /**
    * Blinding context initialization.
@@ -34,10 +24,7 @@ export default class Blinder
    * @param {BigInteger} token
    *    This is used to validate the blinded request.
    */
-  async initContext(key_manager, token)
-  {
-    throw new Error("Not yet implemented.");
-  }
+  public abstract initContext(key_manager: KeyManager, token: BigInteger): Promise<void>;
 
   /**
    * Blinds a given message.
@@ -47,10 +34,7 @@ export default class Blinder
    * @return {BigInteger}
    *    The blinded message.
    */
-  blind(message)
-  {
-    throw new Error("Not yet implemented");
-  }
+  public abstract blind(message: BigInteger): BigInteger;
 
   /**
    * Unblinds a given messsage.
@@ -60,10 +44,7 @@ export default class Blinder
    * @return {BigInteger}
    *    The unblinded message.
    */
-  unblind(message)
-  {
-    throw new Error("Not yet implemented");
-  }
+  public abstract unblind(signed_blinded_message: BigInteger, original_message?: BigInteger): BigInteger;
 
   /**
    * Forges a blind signature.
@@ -71,8 +52,7 @@ export default class Blinder
    * @param {BlindSignaturePacket} packet
    *    The prepared {BlindSignaturePacket} including the raw signature.
    */
-  async forgeSignature(packet)
-  {
-    throw new Error("Not yet implemented");
-  }
+  public abstract forgeSignature(packet: BlindSignaturePacket): Promise<void>
 }
+
+export default Blinder;

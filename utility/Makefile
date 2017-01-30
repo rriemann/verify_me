@@ -1,21 +1,28 @@
 INSTANBUL=node_modules/.bin/istanbul
 MOCHA=node_modules/.bin/mocha
 _MOCHA=node_modules/.bin/_mocha
+TSC=node_modules/.bin/tsc
+TSLINT=node_modules/.bin/tslint
 
 default: build
 all: clean build test
 
-build: src/main.ts
-	@tsc
+build:
+	${TSC}
+	${TSLINT} -c tslint.json src/*
 
-watch: src/main.ts
-	@tsc -w
+watch:
+	${TSC} -w
 
-test:
-	$(INSTANBUL) cover $(_MOCHA) -- dist/test/*
+build-test:
+	${TSC} -p tsconfig.test.json
+	${TSLINT} -c tslint.json src/*
 
-test-debug:
-	$(MOCHA) --debug-brk -- dist/test/* --check-leaks --full-trace
+test: build-test
+	$(INSTANBUL) cover $(_MOCHA) -- dist/test/
+
+test-debug: build-test
+	$(MOCHA) --debug-brk -- dist/test/
 
 clean:
 	@rm -rf dist/* coverage/*

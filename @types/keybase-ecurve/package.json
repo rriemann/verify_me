@@ -1,20 +1,19 @@
-{ 
+{
   "name": "@types/keybase-ecurve",
   "description": "TypeScript definitions for keybase-ecurve 1.0.0",
   "version": "1.0.0",
   "private": true,
-  
   "author": "Bruno Kirschner <bruno.kirschner@online.de>",
   "license": "MIT",
-  
   "main": "",
   "typings": "index.d.ts",
-
+  "dependencies": {
+    "@types/bn": "file:../bn"
+  },
   "repository": {
     "type": "git",
     "url": "https://gitlab.com/0ndo/verify_me"
   },
-
   "bugs": {
     "url": "https://github.com/0ndorio/verify_me/issues"
   }

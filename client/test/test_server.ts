@@ -9,13 +9,15 @@ import server from "../src/server_requests"
 
 describe("server", function() {
 
+  let fake_server: sinon.SinonFakeServer;
+
   beforeEach(() => {
-    this.fake_server = sinon.fakeServer.create();
-    this.fake_server.autoRespond = true;
+    fake_server = sinon.fakeServer.create();
+    fake_server.autoRespond = true;
   });
 
   afterEach(() => {
-    this.fake_server.restore();
+    fake_server.restore();
   });
 
   ///---------------------------------
@@ -25,26 +27,14 @@ describe("server", function() {
   describe("#requestRsaBlinding()", () => {
 
     it("should return a promise", () => {
-      const task = server.requestRsaBlinding().catch(() => {});
+      const task = server
+        .requestRsaBlinding(BigInteger.ZERO, new RsaBlindingContext())
+        .catch(() => {});
+      
       assert.instanceOf(task, Promise);
     });
 
-    it("should reject with wrong typed input for blinded_message", (done) => {
-
-      return server.requestRsaBlinding(123)
-        .catch(() => done());
-    });
-
-    it("should reject with wrong typed input for blinding_context", (done) => {
-
-      const context = new RsaBlindingContext();
-      context.hashed_token = 123;
-
-      return server.requestRsaBlinding("1234", context)
-        .catch(() => done());
-    });
-
-    it("should reject when a network error occurred", async () => {
+    it("should reject when a network error occurred", () => {
 
       const context = new RsaBlindingContext();
       context.hashed_token = BigInteger.ZERO;
@@ -52,30 +42,30 @@ describe("server", function() {
       const request_promise = server.requestRsaBlinding(BigInteger.ZERO, context)
         .catch(error => assert.instanceOf(error, Error));
 
-      assert.equal(1, this.fake_server.requests.length);
-      this.fake_server.requests[0].onload = null;
-      this.fake_server.requests[0].abort();
+      assert.equal(1, fake_server.requests.length);
+      //fake_server.requests[0].onload = null;
+      //fake_server.requests[0];
 
       return request_promise;
     });
 
-    it("should reject and return status text error if status is not 200", (done) => {
+    it("should reject and return status text error if status is not 200", () => {
 
       const expected = {code: 404, status_text: new Error("Not Found")};
-      this.fake_server.respondWith([expected.code, {"Content-Type": "text/plain"}, ""]);
+      fake_server.respondWith([expected.code, {"Content-Type": "text/plain"}, ""]);
 
       let context = new RsaBlindingContext();
       context.hashed_token = BigInteger.ZERO;
 
       return server.requestRsaBlinding(BigInteger.ZERO, context)
-        .catch(() => done());
+        .catch((error:Error) => {error == expected.status_text});
     });
 
     it("should resolve and return server response if status is 200", () =>{
 
       const expected = "deadbeef";
       const answer = JSON.stringify({signed_blinded_message: expected});
-      this.fake_server.respondWith([200, {"Content-Type": "text/plain"}, answer]);
+      fake_server.respondWith([200, {"Content-Type": "text/plain"}, answer]);
 
       let context = new RsaBlindingContext();
       context.hashed_token = BigInteger.ZERO;

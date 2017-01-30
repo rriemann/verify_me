@@ -1,10 +1,10 @@
 "use strict";
 
 import { assert } from "chai"
+import { KeyManager } from "kbpgp"
 import { BigInteger, Buffer, check, util } from "verifyme_utility"
 
-import EcdsaBlindingContext from "../../../src/blinding/ecdsa_andreev/blinding_context"
-
+import AndreevEcdsaBlindingContext from "../../../src/blinding/ecdsa_andreev/blinding_context"
 import sample_keys from "./../../helper/keys"
 
 describe("blinding_context_ecdsa", function() {
@@ -13,26 +13,22 @@ describe("blinding_context_ecdsa", function() {
   // suite functions
   //
 
-  /** @type {AndreevEcdsaBlindingContext} **/
-  let context = null;
-  /** @type {KeyManager} **/
-  let key_manager = null;
+  let context: AndreevEcdsaBlindingContext;
+  let key_manager: KeyManager;
 
   before(async () => {
     key_manager = await util.generateKeyFromString(sample_keys.ecc.bp[256].pub);
   });
 
   beforeEach( () => {
-    context = EcdsaBlindingContext.fromKey(key_manager);
+    context = AndreevEcdsaBlindingContext.fromKey(key_manager);
     context.hashed_token = BigInteger.ONE;
-    context.blinding_factor.a = BigInteger.ONE;
-    context.blinding_factor.b = BigInteger.ONE;
-    context.blinding_factor.c = BigInteger.ONE;
-    context.blinding_factor.d = BigInteger.ONE;
-  });
-
-  afterEach( () => {
-    context = null;
+    context.blinding_factor = {
+      a: BigInteger.ONE,
+      b: BigInteger.ONE,
+      c: BigInteger.ONE,
+      d: BigInteger.ONE
+    }
   });
 
   ///-----------------------------------
@@ -42,42 +38,29 @@ describe("blinding_context_ecdsa", function() {
   describe("#isValidBlindingContext", () => {
 
     it ("should return false after creation", () => {
-      context = new EcdsaBlindingContext();
-      assert.isFalse(EcdsaBlindingContext.isValidBlindingContext(context));
-    });
-
-    it ("should return false if the curve is missing", () => {
-      context.curve = null;
-      assert.isFalse(EcdsaBlindingContext.isValidBlindingContext(context));
+      const local_context = new AndreevEcdsaBlindingContext();
+      assert.isFalse(AndreevEcdsaBlindingContext.isValidBlindingContext(local_context));
     });
 
     it ("should return false if the hashed token is missing", () => {
-      context.hashed_token = null;
-      assert.isFalse(EcdsaBlindingContext.isValidBlindingContext(context));
+      const local_context = new AndreevEcdsaBlindingContext();
+      local_context.blinding_factor = {
+        a: BigInteger.ONE,
+        b: BigInteger.ONE,
+        c: BigInteger.ONE,
+        d: BigInteger.ONE
+      }
+      assert.isFalse(AndreevEcdsaBlindingContext.isValidBlindingContext(local_context));
     });
 
-    it ("should return false if the blinding factor a is missing", () => {
-      context.blinding_factor.a = null;
-      assert.isFalse(EcdsaBlindingContext.isValidBlindingContext(context));
-    });
-
-    it ("should return false if the blinding factor b is missing", () => {
-      context.blinding_factor.b = null;
-      assert.isFalse(EcdsaBlindingContext.isValidBlindingContext(context));
-    });
-
-    it ("should return false if the blinding factor c is missing", () => {
-      context.blinding_factor.c = null;
-      assert.isFalse(EcdsaBlindingContext.isValidBlindingContext(context));
-    });
-
-    it ("should return false if the blinding factor d is missing", () => {
-      context.blinding_factor.d = null;
-      assert.isFalse(EcdsaBlindingContext.isValidBlindingContext(context));
+    it ("should return false if the blinding factors are missing", () => {
+      const local_context = new AndreevEcdsaBlindingContext();
+      local_context.hashed_token = BigInteger.ONE;
+      assert.isFalse(AndreevEcdsaBlindingContext.isValidBlindingContext(local_context));
     });
 
     it ("should return true if all necessary information are present", () => {
-      assert.isTrue(EcdsaBlindingContext.isValidBlindingContext(context));
+      assert.isTrue(AndreevEcdsaBlindingContext.isValidBlindingContext(context));
     });
   });
 
@@ -87,18 +70,14 @@ describe("blinding_context_ecdsa", function() {
 
   describe("#fromKey", () => {
 
-    it ("should throw if input is not a {KeyManager}", () => {
-      assert.throws(() => EcdsaBlindingContext.fromKey(null));
-    });
-
     it ("should throw if input is not a valid ECDSA {KeyManager}", async () => {
       const key_manager = await util.generateKeyFromString(sample_keys.rsa[1024].pub);
-      assert.throws(() => EcdsaBlindingContext.fromKey(key_manager));
+      assert.throws(() => AndreevEcdsaBlindingContext.fromKey(key_manager));
     });
 
     it ("should return a context object if input is a valid ECDSA {KeyManager}", () => {
-      const context = EcdsaBlindingContext.fromKey(key_manager);
-      assert.instanceOf(context, EcdsaBlindingContext);
+      const context = AndreevEcdsaBlindingContext.fromKey(key_manager);
+      assert.instanceOf(context, AndreevEcdsaBlindingContext);
     });
   });
 
@@ -109,38 +88,37 @@ describe("blinding_context_ecdsa", function() {
   describe("#containsAllBlindingInformation", () => {
 
     it ("should return false after creation", () => {
-      context = new EcdsaBlindingContext();
-      assert.isFalse(context.containsAllBlindingInformation());
+      const local_context = new AndreevEcdsaBlindingContext();
+      assert.isFalse(local_context.containsAllBlindingInformation());
     });
 
     it ("should return false if the curve is missing", () => {
-      context.curve = null;
-      assert.isFalse(context.containsAllBlindingInformation());
+      const local_context = new AndreevEcdsaBlindingContext();
+      local_context.hashed_token = BigInteger.ONE;
+      local_context.blinding_factor = {
+        a: BigInteger.ONE,
+        b: BigInteger.ONE,
+        c: BigInteger.ONE,
+        d: BigInteger.ONE
+      }
+      assert.isFalse(local_context.containsAllBlindingInformation());
     });
 
     it ("should return false if the hashed token is missing", () => {
-      context.hashed_token = null;
-      assert.isFalse(context.containsAllBlindingInformation());
+      const local_context = AndreevEcdsaBlindingContext.fromKey(key_manager);
+      local_context.blinding_factor = {
+        a: BigInteger.ONE,
+        b: BigInteger.ONE,
+        c: BigInteger.ONE,
+        d: BigInteger.ONE
+      }
+      assert.isFalse(local_context.containsAllBlindingInformation());
     });
 
-    it ("should return false if the blinding factor a is missing", () => {
-      context.blinding_factor.a = null;
-      assert.isFalse(context.containsAllBlindingInformation());
-    });
-
-    it ("should return false if the blinding factor b is missing", () => {
-      context.blinding_factor.b = null;
-      assert.isFalse(context.containsAllBlindingInformation());
-    });
-
-    it ("should return false if the blinding factor c is missing", () => {
-      context.blinding_factor.c = null;
-      assert.isFalse(context.containsAllBlindingInformation());
-    });
-
-    it ("should return false if the blinding factor d is missing", () => {
-      context.blinding_factor.d = null;
-      assert.isFalse(context.containsAllBlindingInformation());
+    it ("should return false if the blinding factors are missing", () => {
+      const local_context = AndreevEcdsaBlindingContext.fromKey(key_manager);
+      local_context.hashed_token = BigInteger.ONE;
+      assert.isFalse(local_context.containsAllBlindingInformation());
     });
 
     it ("should return true if all necessary information are present", () => {
@@ -153,10 +131,6 @@ describe("blinding_context_ecdsa", function() {
   ///-----------------------------------
 
   describe("#encodeSignaturePayload", () => {
-
-    it ("should throw if input data is no {Buffer}", () => {
-      assert.throws(() => context(null));
-    });
 
     it ("should return the given Buffer as {BigInteger}", () => {
       const buffer = new Buffer([1, 2, 3]);

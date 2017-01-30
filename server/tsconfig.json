@@ -15,6 +15,9 @@
         "module": "commonjs",
         "outDir": "dist/src",
 
+       "noUnusedLocals": false,
+       "noUnusedParameters":  false,
+
         "paths": {
             "tslib": ["node_modules/tslib/tslib.d.ts"]
         }

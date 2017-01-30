@@ -1,7 +1,7 @@
 "use strict";
 
-import fs from "fs";
-import { assert, check } from "verifyme_utility"
+import { readFile } from "fs";
+import { assert, check } from "verifyme_utility";
 
 /**
  * Template engine that replaces the a key place holder with a given ascii key string.
@@ -14,21 +14,22 @@ import { assert, check } from "verifyme_utility"
  *
  * @param {function.<Error, string>} callback
  *    A callback given from express which receives
- *    the an Error or the manipulated html string.
+ *    an Error or the manipulated html string.
  *
  * @return {*}
  *    Result of the given callback.
  */
-export default function customHtmlEngine(file_path, options, callback)
-{
+export default function customHtmlEngine(file_path: string,
+                                         options: { public_key: string },
+                                         callback: (error: Error|null, content?: string) => void ): void {
   assert(check.isString(file_path));
   assert(check.isObject(options));
   assert(check.isFunction(callback));
 
-  fs.readFile(file_path, (err, content) => {
+  readFile(file_path, (err, content) => {
 
     if (err || !options.hasOwnProperty("public_key")) {
-      return callback(new Error(err));
+      return callback(new Error(err.message));
     }
 
     const rendered = content.toString()

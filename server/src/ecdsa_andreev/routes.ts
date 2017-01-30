@@ -1,40 +1,42 @@
-"use strict";
+import { Request, Response } from "express";
+import { BigInteger } from "verifyme_utility";
 
-import keys from "../keys"
-import Signer from "./signing"
+import keys from "../keys";
+import Signer from "./signing";
 
-let secret_scalar = {};
+const secret_scalar = new Map<string, {p: BigInteger, q: BigInteger}>();
 
 /**
  * Render an ECC key into index html.
  *
- * @param {IncomingMessage} request
+ * @param {Request} request
  *    Received HTTP request to access the handled route & method combination.
- * @param {ServerResponse} response
+ * @param {Response} response
  *    HTTP server response
  */
-function renderIndex(request, response)
-{
-  response.render("index", {public_key: keys.ecc_key.armored_pgp_public})
+async function renderIndex(request: Request, response: Response): Promise<void> {
+  const key = await keys.ecc_promise;
+  response.render("index", { public_key: key.armored_pgp_public });
 }
 
 /**
  * Initializes the ECDSA blind signature algorithm.
  *
- * @param {IncomingMessage} request
+ * @param {Request} request
  *    Received HTTP request to access the handled route & method combination.
- * @param {ServerResponse} response
+ * @param {Response} response
  *    HTTP server response
  */
-async function initBlindingAlgorithm(request, response)
-{
-  let json = {};
+async function initBlindingAlgorithm(request: Request, response: Response): Promise<void> {
+
+  const json: { px?: string, py?: string, qx?: string, qy?: string, error?: string } = {};
 
   if (request.hasOwnProperty("body") && request.body.hasOwnProperty("hashed_token")) {
 
-    const { p, P, q, Q } = await Signer.prepare(keys.ecc_key);
+    const key = await keys.ecc_promise;
+    const { p, P, q, Q } = await Signer.prepare(key);
 
-    secret_scalar[request.body.hashed_token] = {p, q};
+    secret_scalar.set(request.body.hashed_token, {p, q});
 
     json.px = P.affineX.toRadix(32);
     json.py = P.affineY.toRadix(32);
@@ -45,28 +47,33 @@ async function initBlindingAlgorithm(request, response)
     json.error = "Missing Token...";
   }
 
-  response.send(json)
+  response.send(json);
 }
 
 /**
  * Signs a a given ECDSA blinded message.
  *
- * @param {IncomingMessage} request
+ * @param {Request} request
  *    Received HTTP request to access the handled route & method combination.
- * @param {ServerResponse} response
+ * @param {Response} response
  *    HTTP server response
  */
-function signBlindedMessage(request, response)
-{
-  let json = {};
-  if (request.hasOwnProperty("body") && request.body.hasOwnProperty("hashed_token")) {
+async function signBlindedMessage(request: Request, response: Response): Promise<void> {
 
-    const secret_scalars = secret_scalar[request.body.hashed_token];
+  const json: {signed_blinded_message?: string, error?: string} = {};
+
+  if (request.body.hasOwnProperty("hashed_token")) {
+
+    const token = secret_scalar.get(request.body.hased_token);
     const blinded_message = request.body.message;
 
-    json.signed_blinded_message = Signer.sign(blinded_message, secret_scalars, keys.ecc_key);
+    if (token != null) {
+      const key = await keys.ecc_promise;
+      json.signed_blinded_message = Signer.sign(blinded_message, token, key);
+    }
+  }
 
-  } else {
+  if (json.signed_blinded_message == null) {
     json.error = "Missing Token...";
   }
 
@@ -76,7 +83,7 @@ function signBlindedMessage(request, response)
 const routes_ecdsa_api = {
   renderIndex,
   initBlindingAlgorithm,
-  signBlindedMessage
+  signBlindedMessage,
 };
 
 export default routes_ecdsa_api;

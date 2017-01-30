@@ -1,35 +1,14 @@
 "use strict";
 
-import { assert, BigInteger, check } from "verifyme_utility"
+import { ecc } from "kbpgp";
+import { assert, BigInteger, Buffer, check, Curve, KeyManager } from "verifyme_utility";
 
-import BlindingContext from "../blinding_context"
+import BlindingContext from "../blinding_context";
 
 /**
  * A ecc blinding context.
  */
-export default class AndreevEcdsaBlindingContext extends BlindingContext
-{
-  constructor()
-  {
-    super();
-
-    /** @type {Curve|null} */
-    this.curve = null;
-
-    /** @type {BigInteger|null} */
-    this.hashed_token = null;
-
-    this.blinding_factor = {
-      /** @type {BigInteger|null} */
-      a: null,
-      /** @type {BigInteger|null} */
-      b: null,
-      /** @type {BigInteger|null} */
-      c: null,
-      /** @type {BigInteger|null} */
-      d: null
-    };
-  }
+export default class AndreevEcdsaBlindingContext extends BlindingContext {
 
   /**
    * Checks if a given {object} is a AndreevEcdsaBlindingContext which fulfills all requirements
@@ -41,8 +20,7 @@ export default class AndreevEcdsaBlindingContext extends BlindingContext
    *    {true} if the object can be used to start the ecdsa_andreev blind signature creation
    *    else {false}
    */
-  static isValidBlindingContext(object)
-  {
+  public static isValidBlindingContext(object: Object): boolean {
     return (object instanceof AndreevEcdsaBlindingContext) && object.containsAllBlindingInformation();
   }
 
@@ -55,16 +33,29 @@ export default class AndreevEcdsaBlindingContext extends BlindingContext
    * @return {AndreevEcdsaBlindingContext}
    *    The generated blinding context.
    */
-  static fromKey(key_manager)
-  {
+  public static fromKey(key_manager: KeyManager): AndreevEcdsaBlindingContext {
     assert(check.isKeyManagerForEcdsaSign(key_manager));
 
     const public_key_package = key_manager.get_primary_keypair().pub;
 
-    let context = new AndreevEcdsaBlindingContext();
-    context.curve = public_key_package.curve;
+    const context = new AndreevEcdsaBlindingContext();
+    context.curve = ( public_key_package as ecc.ECDSA.Pub).curve;
 
     return context;
+  }
+
+  public blinding_factor: {
+    a: BigInteger,
+    b: BigInteger,
+    c: BigInteger,
+    d: BigInteger,
+  };
+
+  public curve: Curve;
+  public hashed_token: BigInteger;
+
+  constructor() {
+    super();
   }
 
   /**
@@ -80,15 +71,18 @@ export default class AndreevEcdsaBlindingContext extends BlindingContext
    *    {true} if all necessary information are stored
    *    else {false}
    */
-  containsAllBlindingInformation()
-  {
+  public containsAllBlindingInformation(): boolean {
+    if (null === this.curve) {
+      return false;
+    }
+
     return check.isCurve(this.curve)
         && check.isBigInteger(this.hashed_token)
         && null != this.blinding_factor
         && this.blinding_factor.hasOwnProperty("a") && check.isBigInteger(this.blinding_factor.a)
         && this.blinding_factor.hasOwnProperty("b") && check.isBigInteger(this.blinding_factor.b)
         && this.blinding_factor.hasOwnProperty("c") && check.isBigInteger(this.blinding_factor.c)
-        && this.blinding_factor.hasOwnProperty("d") && check.isBigInteger(this.blinding_factor.d)
+        && this.blinding_factor.hasOwnProperty("d") && check.isBigInteger(this.blinding_factor.d);
   }
 
   /**
@@ -101,8 +95,7 @@ export default class AndreevEcdsaBlindingContext extends BlindingContext
    * @returns {BigInteger}
    *    the incoming signature data stored as {BigInteger}
    */
-  encodeSignaturePayload(data, hasher)
-  {
+  public encodeSignaturePayload(data: Buffer, hasher?: Function): BigInteger {
     assert(check.isBuffer(data));
     return BigInteger.fromBuffer(data);
   }

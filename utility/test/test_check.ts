@@ -1,15 +1,15 @@
 "use strict";
 
-import { assert } from "chai"
-import { ecc } from "kbpgp"
+import { assert } from "chai";
+import { ecc } from "kbpgp";
 
-import { BigInteger, Buffer } from "../src/types"
-import check from "../src/check"
-import util from "../src/util"
+import check from "../src/check";
+import { BigInteger, Buffer } from "../src/types";
+import util from "../src/util";
 
-import keys, { public_keys} from "./helper/keys"
+import { ecc as ecc_keys, public_keys, rsa as rsa_keys } from "./helper/keys";
 
-describe("check", function() {
+describe("check", () => {
 
   ///---------------------------------
   /// #assert()
@@ -87,7 +87,7 @@ describe("check", function() {
     });
 
     it ("should return true when input parameter is a valid {function}", () => {
-      assert.isTrue(check.isFunction(() => {}));
+      assert.isTrue(check.isFunction(() => { return; }));
     });
   });
 
@@ -133,7 +133,7 @@ describe("check", function() {
     });
 
     it("should return true when parameter is a {KeyManager}", async () => {
-      const key_manager = await util.generateKeyFromString(keys.ecc.bp[512].pub);
+      const key_manager = await util.generateKeyFromString(ecc_keys.bp[512].pub);
       assert.isTrue(check.isKeyManagerForEcdsaSign(key_manager));
     });
   });
@@ -149,7 +149,7 @@ describe("check", function() {
     });
 
     it("should return true when parameter is a {KeyManager}", async () => {
-      const key_manager = await util.generateKeyFromString(keys.rsa[1024].pub);
+      const key_manager = await util.generateKeyFromString(rsa_keys[1024].pub);
       assert.isTrue(check.isKeyManagerForRsaSign(key_manager));
     });
   });

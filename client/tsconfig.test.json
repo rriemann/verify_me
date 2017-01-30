@@ -1,0 +1,37 @@
+{
+    "extends": "../configs/tsconfig.base.json",
+
+    "compileOnSave": true,
+    "compilerOptions": {
+
+       "lib": [
+           "dom",
+           "es5",
+           "es2015",
+           "es2016"
+       ],
+
+       "baseUrl": "./",
+       "module": "commonjs",
+       "outDir": "dist/",
+
+       "noUnusedLocals": false,
+       "noUnusedParameters":  false,
+
+       "paths": {
+            "buffer": ["node_modules/@types/node/index.d.ts"],
+            "tslib": ["node_modules/tslib/tslib.d.ts"],
+            "verifyme_utility": ["node_modules/verifyme_utility/dist/src/verifyme_utility.d.ts"]
+        }
+   },
+
+   "include": [
+       "src/**/*.ts",
+       "test/**/*.ts"
+   ],
+
+   "exclude": [
+      "node_modules/",
+      "dist/"
+   ]
+}

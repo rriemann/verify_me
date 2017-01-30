@@ -5,27 +5,26 @@ module.exports = function(config) {
   config.set({
 
     // base path that will be used to resolve all patterns (eg. files, exclude)
-    basePath: '',
+    basePath: './',
 
 
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-    frameworks: ['browserify', 'chai', 'mocha'],
+    frameworks: [ 'commonjs', 'karma-typescript', 'mocha', 'chai' ],
 
 
     // list of files / patterns to load in the browser
     files: [
-      'node_modules/babel-polyfill/dist/polyfill.js',
-      'src/**/*.js',
-      'test/**/*.js',
-      'test/fixture/*.html'
+      'src/**/*.ts',
+      'test/**/*.ts',
+      'test/fixture/*.html',
+      'node_modules/verifyme_utility/dist/src/verifyme_utility.js'
     ],
 
 
     // list of files to exclude
     exclude: [
-      'src/main.js',
-      'test/helper/*.js',
+      'test/helper/*.ts',
       'test/sample_keys/*'
     ],
 
@@ -33,17 +32,17 @@ module.exports = function(config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-      'src/**/*.js': ['browserify'],
-      'test/**/*.js': ['browserify'],
-      'test/fixture/*.html': ['html2js']
+      'src/**/*.ts': [ 'karma-typescript', 'commonjs' ],
+      'test/**/*.ts': [ 'karma-typescript', 'commonjs' ],
+      'test/fixture/*.html': [ 'html2js' ],
+      'node_modules/verifyme_utility/dist/src/verifyme_utility.js': [ 'commonjs' ]
     },
 
 
     // test results reporter to use
     // possible values: 'dots', 'progress'
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-    reporters: ['mocha'],//, 'coverage'],
-
+    reporters: [ 'progress', 'karma-typescript' ],
 
     // web server port
     port: 9876,
@@ -79,16 +78,6 @@ module.exports = function(config) {
     singleRun: false,
 
 
-    // add additional browserify configuration properties here
-    // such as transform and/or debug=true to generate source maps
-    browserify: {
-      //debug: true,
-      transform: [
-        ['babelify', {presets: ['stage-3', 'es2015']}]
-        ]//'browserify-babel-istanbul']
-    },
-
-
     // add additional watchify configuration properties here
     // such as poll to use watchify as continous integration tool
     watchify: {
@@ -97,6 +86,10 @@ module.exports = function(config) {
 
 
     coverageReporter: {
+      disableCodeCoverageInstrumentation: true,
+      instrumenterOptions: {
+        istanbul: { noCompact: true }
+      },
       reporters : [
         {'type': 'text-summary'},
         {'type': 'lcov'}
@@ -105,6 +98,19 @@ module.exports = function(config) {
 
     client: {
       captureConsole: true
-    }
+    },
+
+    karmaTypescriptConfig: {
+      tsconfig: "./tsconfig.test.json"
+    },
+
+    plugins: [
+      'karma-chai',
+      'karma-chrome-launcher',
+      'karma-commonjs',
+      'karma-html2js-preprocessor',
+      'karma-mocha',
+      'karma-typescript'
+    ]
   })
 }

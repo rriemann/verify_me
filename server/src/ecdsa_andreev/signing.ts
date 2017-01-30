@@ -1,6 +1,7 @@
 "use strict";
 
-import { assert, BigInteger, check, Point, KeyManager, util } from "verifyme_utility"
+import { ecc } from "kbpgp";
+import { assert, BigInteger, check, KeyManager, Point, util } from "verifyme_utility";
 
 /**
  * Prepares the ECDSA blinding algorithm through
@@ -10,15 +11,14 @@ import { assert, BigInteger, check, Point, KeyManager, util } from "verifyme_uti
  * @param {KeyManager} key_manager
  *    A {KeyManager} containing an ECC based key to
  *    extract the related curves public information.
- * @returns {{p: number, P: Point, q: number, Q: Point}}
+ * @returns {{p: BigInteger, P: Point, q: BigInteger, Q: Point}}
  *    The request secret scalars p, q
  *    and the related public points P, Q.
  */
-async function prepareBlinding(key_manager)
-{
+async function prepareBlinding(key_manager: KeyManager): Promise<{p: BigInteger, P: Point, q: BigInteger, Q: Point}> {
   assert(check.isKeyManager(key_manager));
 
-  const public_key_package = key_manager.get_primary_keypair().pub;
+  const public_key_package = key_manager.get_primary_keypair().pub as ecc.ECDSA.Pub;
   const curve = public_key_package.curve;
   const n = curve.n;
   const G = curve.G;
@@ -50,8 +50,7 @@ async function prepareBlinding(key_manager)
  * @returns {string}
  *    The signed message.
  */
-function sign(message, secret_scalars, key_manager)
-{
+function sign(message: string, secret_scalars: {p: BigInteger, q: BigInteger}, key_manager: KeyManager): string {
   assert(check.isString(message));
   assert(check.isKeyManagerForEcdsaSign(key_manager));
   assert(check.isObject(secret_scalars));
@@ -59,7 +58,7 @@ function sign(message, secret_scalars, key_manager)
   assert(secret_scalars.hasOwnProperty("q") && check.isBigInteger(secret_scalars.q));
 
 
-  const public_key_package = key_manager.get_primary_keypair().pub;
+  const public_key_package = key_manager.get_primary_keypair().pub as ecc.ECDSA.Pub;
   const n = public_key_package.curve.n;
 
   const m = new BigInteger(message, 32);
@@ -72,7 +71,7 @@ function sign(message, secret_scalars, key_manager)
 
 const signing_ecdsa_api = {
   prepare: prepareBlinding,
-  sign: sign
+  sign: sign,
 };
 
 export default signing_ecdsa_api;

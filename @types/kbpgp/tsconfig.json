@@ -1,18 +1,21 @@
 {
     "compilerOptions": {
-        "baseUrl": "../",
+        "allowJs": true,
+        "baseUrl": "./",
+        "importHelpers": true,
         "forceConsistentCasingInFileNames": true,
         "module": "commonjs",
         "noEmit": true,
         "noImplicitAny": true,
+
+        "paths": {
+            "buffer": ["node_modules/@types/node/index.d.ts"],
+            "kbpgp": ["index.d.ts"],
+            "tslib": ["node_modules/tslib/tslib.d.ts"]
+        },
+
         "strictNullChecks": false,
-        "target": "es6",
-        "types": [
-            "keybase-ecurve"
-        ],
-        "typeRoots": [
-            "../"
-        ]
+        "target": "es6"
     },
 
     "files": [

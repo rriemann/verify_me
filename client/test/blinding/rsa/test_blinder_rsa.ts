@@ -2,6 +2,7 @@
 
 import { assert } from "chai"
 import { BigInteger, check, util } from "verifyme_utility"
+import { KeyManager } from "kbpgp"
 
 import RsaBlinder from "../../../src/blinding/rsa/blinder_rsa"
 import RsaBlindingContext from "../../../src/blinding/rsa/blinding_context_rsa"
@@ -14,18 +15,15 @@ describe("RsaBlinder", function() {
   // suite functions
   //
 
-  /** @type {RsaBlinder} **/
-  let blinder = null;
-
-  /** @type {KeyManager} **/
-  let key_manager = null;
+  let blinder: RsaBlinder;
+  let key_manager: KeyManager;
 
   before(async () => {
     key_manager = await util.generateKeyFromString(sample_keys.rsa[1024].pub);
   });
 
   beforeEach(async () => {
-    let context = RsaBlindingContext.fromKey(key_manager);
+    const context = RsaBlindingContext.fromKey(key_manager);
     context.hashed_token = BigInteger.ONE;
 
     blinder = new RsaBlinder();
@@ -40,19 +38,9 @@ describe("RsaBlinder", function() {
 
   describe("#initContext()", () => {
 
-    it ("should throw if the input {KeyManager} is missing", () => {
-      return blinder.initContext(null, BigInteger.ONE)
-        .catch(error => assert.instanceOf(error, Error));
-    });
-
     it ("should throw if the input {KeyManager} does not contain an RSA key", async () => {
       const key_manager = await util.generateKeyFromString(sample_keys.ecc.bp[256].pub);
       return blinder.initContext(key_manager, BigInteger.ONE)
-        .catch(error => assert.instanceOf(error, Error));
-    });
-
-    it ("should throw if the the hashed token is no {BigInteger}", () => {
-      return blinder.initContext(key_manager, 123)
         .catch(error => assert.instanceOf(error, Error));
     });
 
@@ -71,12 +59,8 @@ describe("RsaBlinder", function() {
 
   describe("#blind()", () => {
 
-    it ("should throw an assertion if message is no {BigInteger}", () => {
-      assert.throws(() => blinder.blind({}));
-    });
-
     it ("should throw an assertion if the blinding context is incomplete", () => {
-      blinder.context = null;
+      blinder = new RsaBlinder();
       assert.throws(() => blinder.blind(BigInteger.ZERO));
     });
 
@@ -92,10 +76,11 @@ describe("RsaBlinder", function() {
     for (const test of tests) {
       it("Setting: " + tests.indexOf(test) + " - should return a correct blinded message", () => {
 
-        blinder.context.blinding_factor = new BigInteger(test.args.blinding_factor, 10);
-        blinder.context.modulus = new BigInteger(test.args.modulus, 10);
-        blinder.context.public_exponent = new BigInteger("3", 10);
-        blinder.context.hashed_token = new BigInteger("3", 10);
+        const rsa_contex = <RsaBlindingContext>blinder.context;
+        rsa_contex.blinding_factor = new BigInteger(test.args.blinding_factor, 10);
+        rsa_contex.modulus = new BigInteger(test.args.modulus, 10);
+        rsa_contex.public_exponent = new BigInteger("3", 10);
+        rsa_contex.hashed_token = new BigInteger("3", 10);  
 
         const message = new BigInteger(test.args.message, 10);
         const blinded_message = blinder.blind(message);
@@ -111,12 +96,8 @@ describe("RsaBlinder", function() {
 
   describe("#unblind()", () => {
 
-    it ("should throw an assertion if message is no {BigInteger}", () => {
-      assert.throws(() => blinder.unblind({}));
-    });
-
     it ("should throw an assertion if the blinding context is incomplete", () => {
-      blinder.context = null;
+      blinder = new RsaBlinder();
       assert.throws(() => blinder.unblind(BigInteger.ONE));
     });
 
@@ -132,10 +113,11 @@ describe("RsaBlinder", function() {
     for (const test of tests) {
       it ("Setting: " + tests.indexOf(test) + " - should return a correct unblinded message", () => {
 
-        blinder.context.blinding_factor = new BigInteger(test.args.blinding_factor, 10);
-        blinder.context.modulus = new BigInteger(test.args.modulus, 10);
-        blinder.context.public_exponent = new BigInteger("3", 10);
-        blinder.context.hashed_token = new BigInteger("3", 10);
+        const rsa_contex = <RsaBlindingContext>blinder.context;
+        rsa_contex.blinding_factor = new BigInteger(test.args.blinding_factor, 10);
+        rsa_contex.modulus = new BigInteger(test.args.modulus, 10);
+        rsa_contex.public_exponent = new BigInteger("3", 10);
+        rsa_contex.hashed_token = new BigInteger("3", 10);
 
         const message = new BigInteger(test.args.blinded_message, 10);
         const unblinded_message = blinder.unblind(message);

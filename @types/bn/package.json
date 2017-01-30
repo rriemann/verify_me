@@ -1,22 +1,24 @@
-{
-  "name": "@types/kbpgp",
-  "description": "TypeScript definitions for kbpgp 2.0.58",
-  "version": "2.0.58",
+{ 
+  "name": "@types/bn",
+  "description": "TypeScript definitions for bn 1.0.1",
+  "version": "1.0.1",
   "private": true,
+  
   "author": "Bruno Kirschner <bruno.kirschner@online.de>",
   "license": "MIT",
+  
   "main": "",
   "typings": "index.d.ts",
+
   "dependencies": {
-    "@types/bn": "file:../bn",
-    "@types/keybase-ecurve": "file:../keybase-ecurve",
-    "@types/node": "latest",
-    "tslib":"latest"
+    "@types/node": "latest"
   },
+
   "repository": {
     "type": "git",
     "url": "https://gitlab.com/0ndo/verify_me"
   },
+
   "bugs": {
     "url": "https://github.com/0ndorio/verify_me/issues"
   }

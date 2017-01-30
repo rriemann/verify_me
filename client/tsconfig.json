@@ -1,0 +1,39 @@
+{
+    "extends": "../configs/tsconfig.base.json",
+
+    "compileOnSave": true,
+    "compilerOptions": {
+
+       "lib": [
+           "dom",
+           "es5",
+           "es2015",
+           "es2016"
+       ],
+
+       "baseUrl": "./",
+       "module": "UMD",
+       "outDir": "dist/src/",
+
+       "noEmitHelpers": false,
+       "importHelpers": false,
+
+       "noUnusedLocals": false,
+       "noUnusedParameters":  false,
+
+       "paths": {
+            "buffer": ["node_modules/@types/node/index.d.ts"],
+            "tslib": ["node_modules/tslib/tslib.d.ts"],
+            "verifyme_utility": ["node_modules/verifyme_utility/dist/src/verifyme_utility.d.ts"]
+        }
+   },
+
+   "include": [
+       "src/**/*.ts"
+   ],
+
+   "exclude": [
+      "node_modules/",
+      "dist/"
+   ]
+}

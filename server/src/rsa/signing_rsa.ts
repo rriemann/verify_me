@@ -1,6 +1,5 @@
-"use strict";
-
-import { assert, BigInteger, check } from "verifyme_utility"
+import { asym } from "kbpgp";
+import { assert, BigInteger, check, KeyManager } from "verifyme_utility";
 
 /**
  * Signs the given blinded message.
@@ -13,16 +12,18 @@ import { assert, BigInteger, check } from "verifyme_utility"
  * @returns {string}
  *    The signed message.
  */
-export default function sign(message, key_manager)
-{
+export default function sign(message: string, key_manager: KeyManager): string {
+
   assert(check.isString(message));
   assert(check.isKeyManagerForRsaSign(key_manager));
 
   const key_pair = key_manager.get_primary_keypair();
+  const priv = key_pair.priv as asym.RSA.Priv;
+  const pub = key_pair.pub as asym.RSA.Pub;
 
   const m = new BigInteger(message, 32);
-  const n = key_pair.pub.n;
-  const d = key_pair.priv.d;
+  const n = pub.n;
+  const d = priv.d;
 
   return m.modPow(d, n).toRadix(32);
 }

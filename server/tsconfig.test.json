@@ -13,7 +13,10 @@
 
         "baseUrl": "./",
         "module": "commonjs",
-        "outDir": "dist/src",
+        "outDir": "dist/",
+
+       "noUnusedLocals": false,
+       "noUnusedParameters":  false,
 
         "paths": {
             "tslib": ["node_modules/tslib/tslib.d.ts"]
@@ -21,7 +24,8 @@
    },
 
    "include": [
-       "src/**/*.ts"
+       "src/**/*.ts",
+       "test/**/*.ts"
    ],
 
    "exclude": [

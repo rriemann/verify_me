@@ -1,9 +1,9 @@
 "use strict";
 
-import fs from "fs"
+import { readFileSync } from "fs";
+import { assert, check, KeyManager, util } from "verifyme_utility";
 
-import { assert, check, util } from "verifyme_utility"
-import config from "./config"
+import config from "./config";
 const rsa = config.keys.rsa;
 const ecc = config.keys.ecc;
 
@@ -20,13 +20,13 @@ const ecc = config.keys.ecc;
  *    The promise of a {KeyManager] that contains
  *    the key objects.
  */
-async function loadKey(public_key_path, private_key_path, passphrase = null)
-{
+async function loadKey(public_key_path: string, private_key_path: string, passphrase?: string): Promise<KeyManager> {
+
   assert(check.isString(public_key_path));
   assert(check.isString(private_key_path));
 
-  const public_key_string = fs.readFileSync(public_key_path, "utf-8");
-  const private_key_string = fs.readFileSync(private_key_path, "utf-8");
+  const public_key_string = readFileSync(public_key_path, "utf-8");
+  const private_key_string = readFileSync(private_key_path, "utf-8");
 
   const key_manager = await util.generateKeyFromString(public_key_string);
   await mergePrivateKeyIntoKeyManager(key_manager, private_key_string);
@@ -49,20 +49,23 @@ async function loadKey(public_key_path, private_key_path, passphrase = null)
  * @returns {Promise.<KeyManager>}
  *    Promise of a {KeyManager} containing both keys.
  */
-function mergePrivateKeyIntoKeyManager(key_manager, private_key_string)
-{
+function mergePrivateKeyIntoKeyManager(key_manager: KeyManager, private_key_string: string): Promise<KeyManager> {
+
   assert(check.isKeyManager(key_manager));
   assert(check.isString(private_key_string));
 
   return new Promise((resolve, reject) => {
 
-    key_manager.merge_pgp_private({
-      armored: private_key_string
-    }, (err) => {
-      if (err) reject(err);
-      else resolve(key_manager);
+      key_manager.merge_pgp_private({
+        armored: private_key_string,
+      }, (err) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(key_manager);
+        }
+      });
     });
-  });
 }
 
 /**
@@ -72,19 +75,22 @@ function mergePrivateKeyIntoKeyManager(key_manager, private_key_string)
  *    The {KeyManager} that contains the locked key.
  * @param {string} passphrase
  *    The password to unlock the key.
- * @returns {Promise.<*>}
+ * @returns {Promise.<KeyManager>}
  *    The promise that the key is unlocked.
  */
-function unlockPrivateKeyInKeyManager(key_manager, passphrase)
-{
+function unlockPrivateKeyInKeyManager(key_manager: KeyManager, passphrase: string): Promise<KeyManager> {
+
   assert(check.isKeyManager(key_manager));
   assert(check.isString(passphrase));
 
   return new Promise((resolve, reject) => {
 
     key_manager.unlock_pgp({ passphrase }, (err) => {
-      if (err) reject(err);
-      else resolve(key_manager);
+      if (err) {
+        reject(err);
+      } else {
+        resolve(key_manager);
+      }
     });
   });
 }
@@ -92,14 +98,9 @@ function unlockPrivateKeyInKeyManager(key_manager, passphrase)
 const rsa_promise = loadKey(rsa.public_key, rsa.private_key, rsa.passphrase);
 const ecc_promise = loadKey(ecc.public_key, ecc.private_key, ecc.passphrase);
 
-let ecc_key = null;
-let rsa_key = null;
-
 const keys_api = {
-  rsa_key,
   rsa_promise,
-  ecc_key,
-  ecc_promise
+  ecc_promise,
 };
 
 export default keys_api;
